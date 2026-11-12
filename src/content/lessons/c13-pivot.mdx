@@ -1,0 +1,45 @@
+A **modulation** moves the tonal centre to a new key and *stays there*. The smoothest way is through a **pivot chord**: a chord that belongs to both keys, so the listener doesn't notice the door until they're through it.
+
+## Closely related keys
+
+The easiest destinations differ from the home key by at most one accidental. From C major:
+
+| Key | Relation |
+|---|---|
+| G major | dominant |
+| F major | subdominant |
+| A minor | relative minor |
+| E minor | relative of the dominant |
+| D minor | relative of the subdominant |
+
+## Finding the pivot
+
+List the chords the two keys share. C major and G major share C (I = IV), E minor (iii = vi), A minor (vi = ii) and G (V = I).
+
+The best pivot is a chord that works as a **predominant in the new key**. That way it leads naturally into the new dominant. **vi in C = ii in G** is the textbook choice:
+
+<Progression romans="I IV vi=G:ii V7 I" label="C: I – IV – vi=ii – G: V7 – I" />
+
+Read the label "vi=G:ii" as: *heard as vi in C, reinterpreted as ii in G*. The very next chord, D7, contains F♯, and the new key is confirmed.
+
+## Two more
+
+To the **relative minor** (C → A minor): F major is IV in C and VI in A minor.
+
+<Progression romans="I V vi IV=a:VI V7 i" label="C → A minor via IV = VI" />
+
+To the **subdominant** (C → F): D minor is ii in C and vi in F.
+
+<Progression romans="I V vi ii=F:vi V7 I" label="C → F via ii = vi" />
+
+<Callout title="Confirm it">
+A modulation isn't finished until the new key gets a **cadence** (V–I). Without one, you've only tonicized the chord.
+</Callout>
+
+<Quiz q="Which chord is a good pivot from C major to G major?" options={["F major (IV)", "A minor (vi = ii)", "B diminished"]} answer={1} explain="F major isn't in G major (it has F♮). A minor is vi in C and ii in G, a natural predominant." />
+
+<Quiz q="F major in A minor is…" options={["iv", "VI", "III"]} answer={1} explain="A B C D E F G: F is the 6th degree, a major triad: VI." />
+
+<Composer title="Moving the music with the player">
+Modulation is a storytelling tool. A theme that comes back a step higher feels like progress; moving to the relative minor darkens the same material. In a game, a smooth pivot modulation is ideal for **transitions that should feel continuous**: entering a deeper part of the same area, or a cutscene that grows out of gameplay music.
+</Composer>

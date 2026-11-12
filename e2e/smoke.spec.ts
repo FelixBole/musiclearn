@@ -80,13 +80,16 @@ test('every lesson renders without errors', async ({ page }) => {
     'a5-triads', 'a5-diatonic', 'a5-inversions', 'a5-sevenths',
     'b6-function', 'b6-cadences', 'b7-satb', 'b7-motion', 'b7-connecting', 'b7-orchestra', 'b8-first-inversion',
     'b8-six-four', 'b9-passing-neighbor', 'b9-suspensions', 'b10-sequences', 'b11-harmonizing', 'b11-harmonic-rhythm',
+    'c12-secondary-dominants', 'c12-leading-tone-chords', 'c13-pivot', 'c13-direct', 'c14-mixture', 'c14-picardy',
+    'c15-neapolitan', 'c15-aug-sixths', 'c16-mediants', 'c16-cinematic', 'c17-modes', 'c17-modal-harmony',
+    'c18-extensions', 'c18-sus-quartal', 'c18-polychords',
   ];
   for (const id of ids) {
     await page.goto(`/#/learn/${id}`);
     await expect(page.locator('.prose')).toBeVisible();
     await expect(page.locator('.prose')).not.toContainText('notation error');
     await expect(page.locator('.prose .error')).toHaveCount(0);
-    if (['a5-sevenths', 'b7-motion', 'b8-six-four'].includes(id)) await shot(page, `lesson-${id}`);
+    if (['a5-sevenths', 'b7-motion', 'c13-pivot', 'c17-modes', 'c18-polychords'].includes(id)) await shot(page, `lesson-${id}`);
   }
   expect(errors).toEqual([]);
 });
@@ -98,6 +101,7 @@ test('every drill starts and renders a question at each level', async ({ page })
     ['note-reading', 7], ['key-signatures', 5], ['interval-reading', 4], ['interval-ear', 6],
     ['chord-quality-ear', 6], ['scale-degree-ear', 4], ['chord-spelling', 5], ['sight-reading', 6],
     ['cadence-ear', 5], ['progression-ear', 5], ['roman-analysis', 4], ['error-spotting', 4], ['voice-next', 5], ['harmonize-melody', 4],
+    ['chromatic-spelling', 5], ['chromatic-ear', 5], ['mode-ear', 5],
   ];
   for (const [id, levels] of drills) {
     for (let l = 0; l < levels; l++) {

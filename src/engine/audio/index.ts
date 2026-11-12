@@ -69,22 +69,60 @@ export interface PlayEvent {
   velocity?: number;
 }
 
-/** Play a sequence of events. Resolves when the last event ends. */
-export async function playEvents(events: PlayEvent[]): Promise<void> {
+export interface PlayOptions {
+  /** called when event `i` starts sounding (for highlighting) */
+  onEvent?: (i: number) => void;
+}
+
+/** Bumped by stopPlayback(): pending events of older playbacks are dropped. */
+let generation = 0;
+const pendingStops = new Set<() => void>();
+
+/**
+ * Play a sequence of events. Resolves when the last event ends (or playback is stopped).
+ * Events are handed to the sampler shortly before they sound, so stopPlayback() can cut them.
+ */
+export async function playEvents(events: PlayEvent[], opts: PlayOptions = {}): Promise<void> {
   await ensureAudio();
   const s = sampler!;
+  const gen = generation;
   const start = Tone.now() + 0.05;
+  const t0 = performance.now() + 50;
+  const timers: ReturnType<typeof setTimeout>[] = [];
   let cursor = 0;
   let end = 0;
-  for (const ev of events) {
+  events.forEach((ev, i) => {
     const at = ev.at ?? cursor;
-    if (ev.notes.length) {
-      s.triggerAttackRelease(ev.notes.map(freq), ev.duration, start + at, ev.velocity ?? 0.75);
-    }
+    timers.push(
+      setTimeout(
+        () => {
+          if (gen !== generation || !ev.notes.length) return;
+          s.triggerAttackRelease(ev.notes.map(freq), ev.duration, start + at, ev.velocity ?? 0.75);
+        },
+        Math.max(0, at * 1000 - 150),
+      ),
+    );
+    if (opts.onEvent) timers.push(setTimeout(() => gen === generation && opts.onEvent!(i), Math.max(0, t0 - performance.now() + at * 1000)));
     cursor = at + ev.duration;
     end = Math.max(end, cursor);
-  }
-  await new Promise((r) => setTimeout(r, end * 1000 + 100));
+  });
+  await new Promise<void>((resolve) => {
+    const done = () => {
+      pendingStops.delete(done);
+      timers.forEach(clearTimeout);
+      clearTimeout(t);
+      resolve();
+    };
+    const t = setTimeout(done, end * 1000 + 100);
+    pendingStops.add(done);
+  });
+}
+
+/** Cut every playing / scheduled sequence. */
+export function stopPlayback() {
+  generation++;
+  sampler?.releaseAll();
+  for (const stop of [...pendingStops]) stop();
 }
 
 export function playChord(midis: number[], duration = 1.6) {
@@ -104,8 +142,11 @@ export function playArpeggioThenChord(midis: number[], noteDuration = 0.45) {
   ]);
 }
 
-export function playProgression(chords: number[][], chordDuration = 1.1) {
-  return playEvents(chords.map((c) => ({ notes: c, duration: chordDuration })));
+export function playProgression(chords: number[][], chordDuration = 1.1, opts?: PlayOptions) {
+  return playEvents(
+    chords.map((c) => ({ notes: c, duration: chordDuration })),
+    opts,
+  );
 }
 
 /* Live playing (MIDI echo / on-screen keyboard) */

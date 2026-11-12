@@ -1,0 +1,49 @@
+Write a Dorian melody, harmonize it with a V7 → i cadence, and it suddenly sounds like plain minor. Modes are fragile: the **leading tone** of major/minor pulls them back. Here's how to keep them alive.
+
+## Rule 1: avoid the leading tone, use modal cadences
+
+Replace V → I with the mode's own characteristic move:
+
+| Mode | Cadence | In… |
+|---|---|---|
+| Mixolydian | ♭VII → I | G: F → G |
+| Dorian | IV → i | D: G → Dm |
+| Aeolian | ♭VI → ♭VII → i | A: F → G → Am |
+| Phrygian | ♭II → i | E: F → Em |
+| Lydian | II → I | F: G → F |
+
+<Progression romans="i bVII IV i" tonic="D" minor keySig="C" label="D Dorian: Dm – C – G – Dm" />
+
+## Rule 2: anchor the tonic with a pedal
+
+A **pedal point** is a note held (usually in the bass) while the harmony changes above it. The constant bass keeps telling the ear where home is, so modal chords can't drift into another key.
+
+<Progression romans="Dm G/D Dm C/D Dm" tonic="D" minor keySig="C" label="D pedal: Dm – G/D – Dm – C/D – Dm" />
+
+C/D is a C major chord over a D that isn't part of it. The friction is part of the colour.
+
+<Progression romans="Em F/E Em" tonic="E" minor keySig="C" label="E Phrygian over an E pedal" />
+
+## Rule 3: let an ostinato carry the mode
+
+An **ostinato** is a short pattern repeated over and over. A tonic-based ostinato does what a pedal does, with rhythm and energy:
+
+<Example notes="D3 A3 D4 A3 D3 A3 E4 A3 D3 A3 F4 A3 D3 A3 E4 A3" label="Ostinato on D" />
+
+Put chords over it: Dm, G, C, Dm. The ostinato never changes, the harmony glides on top, and the mode stays clear.
+
+<Quiz q="Why do modal pieces avoid V7 → I?" options={["It's too loud", "The leading tone pulls the music back to major/minor", "It creates parallel fifths"]} answer={1} />
+
+<Quiz q="What is a pedal point?" options={["A sustained note held while harmonies change", "A fast repeated melody", "A chord without a 3rd"]} answer={0} />
+
+<Quiz q="The Phrygian cadence (modal sense) is…" options={["♭VII → I", "♭II → i", "IV → i"]} answer={1} />
+
+<Composer title="Loops that never get stale">
+Pedal + ostinato is **the** foundation of loopable game music:
+
+- It's **stable**: you can add or remove layers on top (vertical layering) without harmonic clashes.
+- It **hides the loop point**: no cadence means no "ending" for the ear to notice.
+- It's **flexible**: change the chords above a fixed ostinato to raise tension without breaking the loop.
+
+Start a combat cue from a low string ostinato on the tonic, then build up the layers.
+</Composer>

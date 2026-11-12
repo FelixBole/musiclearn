@@ -34,7 +34,11 @@ export type RuleId =
   | 'leading-tone-unresolved'
   | 'seventh-unresolved'
   | 'augmented-melodic'
-  | 'large-leap';
+  | 'large-leap'
+  | 'missing-tone'
+  | 'doubled-tendency'
+  | 'tendency-unresolved'
+  | 'cross-relation';
 
 export interface Issue {
   rule: RuleId;
@@ -64,7 +68,17 @@ export const RULE_LABELS: Record<RuleId, string> = {
   'seventh-unresolved': '7th doesn’t resolve down',
   'augmented-melodic': 'Augmented melodic interval',
   'large-leap': 'Awkward leap',
+  'missing-tone': 'Missing chord tone',
+  'doubled-tendency': 'Doubled tendency tone',
+  'tendency-unresolved': 'Tendency tone doesn’t resolve',
+  'cross-relation': 'Cross-relation',
 };
+
+/** Chord qualities that act as a dominant (for secondary leading-tone rules). */
+const DOMINANT_QUALITIES = new Set(['maj', 'dom7', 'dim', 'dim7', 'm7b5']);
+const isAppliedDominant = (c: RomanChord) => !!c.secondaryOf && !c.kind && DOMINANT_QUALITIES.has(c.quality);
+/** leading tone of the key a secondary chord tonicizes */
+const localLeadingTone = (c: RomanChord) => (pcOf(c.localKey.tonic) + 11) % 12;
 
 const pc = (m: number) => ((m % 12) + 12) % 12;
 const interval = (low: number, high: number) => pc(high - low);
@@ -72,8 +86,9 @@ const vn = (i: number) => VOICE_NAMES[i];
 
 /* ---------------- single chord ---------------- */
 
-export function checkChord(v: Satb, at: number, chord?: RomanChord, key?: KeyCtx): Issue[] {
+export function checkChord(v: Satb, at: number, chord?: RomanChord, keyArg?: KeyCtx): Issue[] {
   const issues: Issue[] = [];
+  const key = chord?.key ?? keyArg;
   v.forEach((m, i) => {
     const [lo, hi] = RANGES[i];
     if (m < lo - 2 || m > hi + 2) {
@@ -100,8 +115,22 @@ export function checkChord(v: Satb, at: number, chord?: RomanChord, key?: KeyCtx
       issues.push({ rule: 'wrong-bass', severity: 'error', at, voices: [0], message: `The bass should be ${chord.bass} for ${chord.symbol}.` });
     }
     const present = new Set(v.map(pc));
-    if (!present.has(pcs[1])) issues.push({ rule: 'missing-third', severity: 'error', at, voices: [], message: 'The 3rd is missing — the chord loses its major/minor colour.' });
-    if (chord.seventh && !present.has(pcs[3])) issues.push({ rule: 'missing-seventh', severity: 'error', at, voices: [], message: 'The 7th is missing.' });
+    if (chord.essential) {
+      const missing = chord.essential.filter((p) => !present.has(pcOf(p)));
+      if (missing.length) issues.push({ rule: 'missing-tone', severity: 'error', at, voices: [], message: `${missing.join(' and ')} must sound — it defines the chord.` });
+    } else {
+      if (!present.has(pcs[1])) issues.push({ rule: 'missing-third', severity: 'error', at, voices: [], message: 'The 3rd is missing — the chord loses its major/minor colour.' });
+      if (chord.seventh && !present.has(pcs[3])) issues.push({ rule: 'missing-seventh', severity: 'error', at, voices: [], message: 'The 7th is missing.' });
+    }
+    for (const p of chord.noDouble ?? []) {
+      const idx = v.map((m, i) => (pc(m) === pcOf(p) ? i : -1)).filter((i) => i >= 0);
+      if (idx.length > 1) issues.push({ rule: 'doubled-tendency', severity: 'error', at, voices: idx, message: `${p} is a tendency tone — doubling it forces parallel octaves when it resolves.` });
+    }
+    if (isAppliedDominant(chord)) {
+      const lt = localLeadingTone(chord);
+      const lts = v.map((m, i) => (pc(m) === lt ? i : -1)).filter((i) => i >= 0);
+      if (lts.length > 1) issues.push({ rule: 'doubled-leading-tone', severity: 'error', at, voices: lts, message: 'The leading tone of the tonicized chord is doubled.' });
+    }
     if (chord.seventh) {
       const sevenths = v.map((m, i) => (pc(m) === pcs[3] ? i : -1)).filter((i) => i >= 0);
       if (sevenths.length > 1) issues.push({ rule: 'doubled-seventh', severity: 'error', at, voices: sevenths, message: 'The 7th is doubled — both copies would need to resolve down (parallel octaves).' });
@@ -117,8 +146,9 @@ export function checkChord(v: Satb, at: number, chord?: RomanChord, key?: KeyCtx
 
 /* ---------------- chord pair ---------------- */
 
-export function checkPair(a: Satb, b: Satb, at: number, ca?: RomanChord, cb?: RomanChord, key?: KeyCtx): Issue[] {
+export function checkPair(a: Satb, b: Satb, at: number, ca?: RomanChord, cb?: RomanChord, keyArg?: KeyCtx): Issue[] {
   const issues: Issue[] = [];
+  const key = ca?.key ?? keyArg;
   // parallels (any voice pair), both voices must move
   for (let i = 0; i < 4; i++) {
     for (let j = i + 1; j < 4; j++) {
@@ -176,11 +206,18 @@ export function checkPair(a: Satb, b: Satb, at: number, ca?: RomanChord, cb?: Ro
     }
     // A 7th may be held into a cadential 6/4 (delayed resolution, e.g. ii65 → I64 → V).
     const cadential64 = cb.degree === 1 && cb.inversion === 2 && !cb.seventh;
-    if (ca.seventh && !cadential64) {
+    // The common-tone °7's "7th" is the held tonic, not a dissonance that must fall.
+    if (ca.seventh && !cadential64 && ca.kind !== 'ctdim') {
       const sev = pcOf(ca.pcs[3]);
+      // a 7th may also be held to become a suspension (ii7 → V7sus4 → V7)
+      const heldAsSuspension = (cb.tendencies ?? []).some((t) => pcOf(t.pc) === sev);
+      const tritoneSub = ca.quality === 'dom7' && pc(pcOf(ca.root) - pcOf(cb.root)) === 1;
       for (let i = 0; i < 4; i++) {
         if (pc(a[i]) === sev) {
           const d = a[i] - b[i];
+          if (d === 0 && heldAsSuspension) continue;
+          // tritone substitution (♭II7 → I): the 7th is an enharmonic leading tone and rises
+          if (d === -1 && tritoneSub) continue;
           if (d !== 1 && d !== 2) {
             issues.push({ rule: 'seventh-unresolved', severity: 'error', at, voices: [i], message: `The chordal 7th in the ${vn(i)} should resolve down by step.` });
           }
@@ -188,7 +225,53 @@ export function checkPair(a: Satb, b: Satb, at: number, ca?: RomanChord, cb?: Ro
       }
     }
   }
+  if (ca && cb) {
+    // applied dominants: the borrowed leading tone rises into the chord it tonicizes
+    if (isAppliedDominant(ca) && pcOf(cb.root) === pcOf(ca.localKey.tonic)) {
+      const lt = localLeadingTone(ca);
+      for (const i of [0, 3]) {
+        if (pc(a[i]) === lt && b[i] - a[i] !== 1) {
+          issues.push({ rule: 'leading-tone-unresolved', severity: 'error', at, voices: [i], message: `The ${vn(i)} has the leading tone of ${ca.secondaryOf} — it should rise a half step into it.` });
+        }
+      }
+    }
+    // tendency tones of special chords (augmented 6ths, Neapolitan, suspensions)
+    const bPcs = ca.tendencies ? new Set(cb.pcs.map(pcOf)) : new Set<number>();
+    for (const t of ca.tendencies ?? []) {
+      const target = pc(pcOf(t.pc) + t.step);
+      if (!bPcs.has(target) || ca.root === cb.root && ca.kind !== 'sus') continue;
+      for (let i = 0; i < 4; i++) {
+        if (pc(a[i]) === pcOf(t.pc) && b[i] - a[i] !== t.step) {
+          issues.push({ rule: 'tendency-unresolved', severity: 'error', at, voices: [i], message: `${t.pc} in the ${vn(i)} should move ${t.step > 0 ? 'up' : 'down'} by step to its resolution.` });
+        }
+      }
+    }
+    issues.push(...crossRelations(a, b, at, ca, cb));
+  }
   return issues;
+}
+
+/** Same letter, different accidental, in different voices (e.g. F in the tenor, then F♯ in the soprano). */
+function crossRelations(a: Satb, b: Satb, at: number, ca: RomanChord, cb: RomanChord): Issue[] {
+  // fast path: only chords with the same letter under different accidentals can cross-relate
+  if (!ca.pcs.some((x) => cb.pcs.some((y) => x[0] === y[0] && x !== y))) return [];
+  const nameIn = (m: number, c: RomanChord) => c.pcs.find((p) => pcOf(p) === pc(m));
+  const na = a.map((m) => nameIn(m, ca));
+  const nb = b.map((m) => nameIn(m, cb));
+  const out: Issue[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < 4; i++)
+    for (let j = 0; j < 4; j++) {
+      const x = na[i];
+      const y = nb[j];
+      if (!x || !y || x[0] !== y[0] || x === y || seen.has(x + y)) continue;
+      seen.add(x + y);
+      const inflectedInOneVoice = [0, 1, 2, 3].some((k) => na[k] === x && nb[k] === y);
+      if (!inflectedInOneVoice) {
+        out.push({ rule: 'cross-relation', severity: 'warning', at, voices: [i, j], message: `${x} becomes ${y} in a different voice — keep chromatic changes in one voice.` });
+      }
+    }
+  return out;
 }
 
 function isAugmentedSecond(from: number, to: number, ca: RomanChord, cb: RomanChord): boolean {

@@ -1,8 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { realize } from '../engine/harmony/voicing';
-import { parseRoman } from '../engine/harmony/roman';
+import { parseProgression, realizeProgression } from '../engine/harmony/sequence';
 import { checkProgression, errorsOnly, type Satb } from '../engine/harmony/voiceleading';
 import { toMidi } from '../engine/theory';
 import { ALL_LESSONS } from './curriculum';
@@ -24,8 +23,9 @@ describe('lesson content', () => {
     for (const tag of progressions) {
       it(`${f}: ${tag.slice(0, 70)} voices cleanly`, () => {
         const key = { tonic: attr(tag, 'tonic') ?? 'C', minor: /\sminor[\s/]/.test(tag) };
-        const symbols = attr(tag, 'romans')!.trim().split(/\s+/);
-        const r = realize(symbols, key);
+        const res = realizeProgression(attr(tag, 'romans')!, key);
+        expect(res.error).toBeUndefined();
+        const r = res.realization!;
         expect(errorsOnly(checkProgression(r.voicings, r.chords, key))).toEqual([]);
       });
     }
@@ -34,9 +34,21 @@ describe('lesson content', () => {
       it(`${f}: chorale "${attr(tag, 'label')}" check result`, () => {
         const key = { tonic: attr(tag, 'tonic') ?? 'C', minor: /\sminor[\s/]/.test(tag) };
         const voicings = attr(tag, 'notes')!.trim().split(/\s+/).map((c) => c.split(',').map(toMidi) as Satb);
-        const chords = attr(tag, 'romans')!.trim().split(/\s+/).map((s) => parseRoman(s, key));
+        const parsed = parseProgression(attr(tag, 'romans')!, key);
+        expect(parsed.errors).toEqual([]);
+        const chords = parsed.items.map((i) => i.chord);
+        expect(chords.length).toBe(voicings.length);
         const issues = checkProgression(voicings, chords, key);
         console.log(`[${f}] ${attr(tag, 'label')} → ${issues.map((i) => `${i.severity}:${i.rule}`).join(', ') || 'clean'}`);
+      });
+    }
+    const voicingTags = [...src.matchAll(/<Voicings[^>]*\/>/g)].map((m) => m[0]);
+    for (const tag of voicingTags) {
+      it(`${f}: voicings "${attr(tag, 'labels') ?? ''}" are valid notes`, () => {
+        const chords = attr(tag, 'notes')!.trim().split(/\s+/);
+        for (const c of chords) for (const n of c.split(',')) expect(Number.isFinite(toMidi(n)), n).toBe(true);
+        const labels = attr(tag, 'labels');
+        if (labels) expect(labels.split('|').length).toBe(chords.length);
       });
     }
   }

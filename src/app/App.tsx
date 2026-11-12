@@ -12,6 +12,8 @@ import { PracticePage } from './pages/PracticePage';
 import { DrillPage } from './pages/DrillPage';
 import { ReviewPage } from './pages/ReviewPage';
 import { ToolsPage } from './pages/ToolsPage';
+import { PlaygroundPage } from './tools/PlaygroundPage';
+import { ConnectPage } from './tools/ConnectPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { DbGate, ErrorBoundary } from './Resilience';
 
@@ -70,6 +72,8 @@ function Shell() {
           <Route path="/practice/:exerciseId" element={<DrillPage />} />
           <Route path="/review" element={<ReviewPage />} />
           <Route path="/tools" element={<ToolsPage />} />
+          <Route path="/tools/playground" element={<PlaygroundPage />} />
+          <Route path="/tools/connect" element={<ConnectPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<TodayPage />} />
         </Routes>

@@ -5,6 +5,9 @@
  *   numeral: I II III IV V VI VII (major triad) or lowercase (minor triad)
  *   figures: 6, 64 (triads)  ·  7, 65, 43, 42 / 2 (sevenths)
  *   examples: I  V6  ii65  vii°7  V7/V  bVI  iv6  I64  V42  viiø7
+ *   suspensions: Vsus4  V7sus4  Isus2
+ *   chromatic specials: N  N6 (Neapolitan)  ·  It+6  Fr+6  Ger+6 (augmented sixths, bass on ♭6)
+ *                       ct°7 (common-tone diminished 7th over the tonic; ct°7/V embellishes V)
  *
  * Accidental prefixes are relative to the MAJOR scale of the tonic (bVI = lowered 6th),
  * the common modern convention. In minor keys, unprefixed numerals use natural minor,
@@ -19,7 +22,13 @@ export interface KeyCtx {
 }
 
 export type TriadQuality = 'maj' | 'min' | 'dim' | 'aug';
-export type ChordQualityId = TriadQuality | 'dom7' | 'maj7' | 'min7' | 'm7b5' | 'dim7' | 'mMaj7';
+export type ChordQualityId = TriadQuality | 'dom7' | 'maj7' | 'min7' | 'm7b5' | 'dim7' | 'mMaj7' | 'aug6' | 'other';
+
+/** A tone with a strong melodic pull: if the next chord contains pc+step, this voice must move there. */
+export interface Tendency {
+  pc: string;
+  step: number;
+}
 
 export interface RomanChord {
   symbol: string;
@@ -36,6 +45,17 @@ export interface RomanChord {
   secondaryOf?: string;
   /** key the chord was spelled in (secondary chords tonicize another key) */
   localKey: KeyCtx;
+  /** key the symbol is analysed in (the outer key, also for secondary chords) */
+  key: KeyCtx;
+  /** special families get their own doubling / completeness rules */
+  kind?: 'neapolitan' | 'aug6' | 'sus' | 'symbol' | 'ctdim';
+  /** pitch classes that must sound (replaces the 3rd/7th completeness rules) */
+  essential?: string[];
+  /** pitch classes that must not be doubled */
+  noDouble?: string[];
+  /** preferred doubling */
+  preferDouble?: string;
+  tendencies?: Tendency[];
 }
 
 const MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11];
@@ -97,20 +117,38 @@ const FIGURES: Record<string, { inversion: number; seventh: boolean }> = {
   '2': { inversion: 3, seventh: true },
 };
 
-const RE = /^([b#♭♯]?)(VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)([°oø+]?)(maj7|7|65|64|6|43|42|2)?$/;
+const RE = /^([b#♭♯]?)(VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)([°oø+]?)(maj7|7|65|64|6|43|42|2)?(sus4|sus2|sus)?$/;
+const SPECIAL_RE = /^(N|It|Fr|Ger)(\+?)(6|64|65|43)?$/;
 
 export function parseRoman(symbol: string, key: KeyCtx): RomanChord {
   const [primary, target] = symbol.split('/');
   if (target) {
     // Secondary chord: read the primary in the key of the target degree.
     const t = parseRoman(target, key);
+    if (t.kind === 'aug6') throw new Error(`Cannot tonicize an augmented 6th ("${symbol}")`);
     const local: KeyCtx = { tonic: t.root, minor: t.quality === 'min' || t.quality === 'dim' };
     const c = parseRoman(primary, local);
-    return { ...c, symbol, secondaryOf: target, localKey: local };
+    return { ...c, symbol, secondaryOf: target, localKey: local, key };
   }
+  if (/^ct[°o]7$/.test(primary.trim())) {
+    // common-tone °7: ♯2–♯4–6–1 around a held tonic (bass), neighbours resolve up into the tonic triad
+    const c = parseRoman('#ii°42', key);
+    return {
+      ...c,
+      symbol,
+      kind: 'ctdim',
+      essential: c.pcs.filter((p) => p !== c.bass),
+      tendencies: [
+        { pc: c.pcs[0], step: 1 },
+        { pc: c.pcs[1], step: 1 },
+      ],
+    };
+  }
+  const sp = SPECIAL_RE.exec(primary.trim());
+  if (sp) return parseSpecial(symbol, sp[1] as 'N' | 'It' | 'Fr' | 'Ger', sp[3] ?? '', key);
   const m = RE.exec(primary.trim());
   if (!m) throw new Error(`Cannot parse Roman numeral "${symbol}"`);
-  const [, accStr, numeral, mark, figRaw = ''] = m;
+  const [, accStr, numeral, mark, figRaw = '', sus] = m;
   const alter = accStr === 'b' || accStr === '♭' ? -1 : accStr === '#' || accStr === '♯' ? 1 : 0;
   const upper = numeral === numeral.toUpperCase();
   const degree = NUMERALS.indexOf(numeral.toUpperCase()) + 1;
@@ -147,7 +185,7 @@ export function parseRoman(symbol: string, key: KeyCtx): RomanChord {
   const pcs = [root, spellAbove(root, 2, third), spellAbove(root, 4, fifth)];
   if (fig.seventh) pcs.push(spellAbove(root, 6, SEVENTH_QUALITIES[quality].seventh));
 
-  return {
+  const chord: RomanChord = {
     symbol,
     degree,
     root,
@@ -157,6 +195,68 @@ export function parseRoman(symbol: string, key: KeyCtx): RomanChord {
     seventh: fig.seventh,
     bass: pcs[fig.inversion],
     localKey: key,
+    key,
+  };
+  if (sus) {
+    // replace the 3rd by the 4th (or 2nd); it resolves to the 3rd the chord "wants"
+    const four = sus !== 'sus2';
+    const susNote = four ? spellAbove(root, 3, 5) : spellAbove(root, 1, 2);
+    pcs[1] = susNote;
+    chord.bass = pcs[fig.inversion];
+    chord.kind = 'sus';
+    chord.essential = [susNote, ...(fig.seventh ? [pcs[3]] : []), ...(fig.inversion ? [root] : [])].filter((p) => p !== chord.bass);
+    chord.tendencies = [{ pc: susNote, step: third - (four ? 5 : 2) }];
+  }
+  return chord;
+}
+
+/** Neapolitan and augmented-sixth chords, spelled from the key's tonic. */
+function parseSpecial(symbol: string, family: 'N' | 'It' | 'Fr' | 'Ger', fig: string, key: KeyCtx): RomanChord {
+  const t = key.tonic;
+  if (family === 'N') {
+    const root = spellAbove(t, 1, 1); // ♭2
+    const pcs = [root, spellAbove(root, 2, 4), spellAbove(root, 4, 7)];
+    const inversion = fig === '6' ? 1 : fig === '64' ? 2 : 0;
+    return {
+      symbol,
+      degree: 2,
+      root,
+      quality: 'maj',
+      pcs,
+      inversion,
+      seventh: false,
+      bass: pcs[inversion],
+      localKey: key,
+      key,
+      kind: 'neapolitan',
+      preferDouble: pcs[1], // the 4th scale degree (the bass of N6)
+      tendencies: [{ pc: root, step: -1 }], // ♭2 falls (to 1, or on to 7 over V)
+    };
+  }
+  const b6 = spellAbove(t, 5, 8);
+  const sharp4 = spellAbove(t, 3, 6);
+  const extra = family === 'Fr' ? [spellAbove(t, 1, 2)] : family === 'Ger' ? [spellAbove(t, 2, 3)] : [];
+  const pcs = [b6, t, ...extra, sharp4];
+  return {
+    symbol,
+    degree: 6,
+    root: b6,
+    quality: 'aug6',
+    pcs,
+    inversion: 0,
+    seventh: false,
+    bass: b6,
+    localKey: key,
+    key,
+    kind: 'aug6',
+    essential: pcs.slice(1),
+    noDouble: [b6, sharp4],
+    preferDouble: t,
+    // the augmented 6th expands outward to the octave on 5
+    tendencies: [
+      { pc: b6, step: -1 },
+      { pc: sharp4, step: 1 },
+    ],
   };
 }
 
@@ -168,12 +268,15 @@ export function prettyRoman(symbol: string): string {
       part
         .replace(/^b/, '♭')
         .replace(/^#/, '♯')
+        .replace(/\+(6|65|43)$/, '⁺$1')
+        .replace(/sus4$/, 'sus⁴')
+        .replace(/sus2$/, 'sus²')
         .replace(/65$/, '⁶₅')
         .replace(/43$/, '⁴₃')
         .replace(/42$/, '⁴₂')
         .replace(/64$/, '⁶₄')
         .replace(/(?<![⁶⁴])6$/, '⁶')
-        .replace(/(?<=[IVvi°ø+])7$/, '⁷'),
+        .replace(/(?<=[IVvi°ø+])7(?=$|sus)/, '⁷'),
     )
     .join('/');
 }
@@ -201,3 +304,35 @@ export function leadingTonePc(key: KeyCtx): number {
 }
 
 export { pcOf };
+
+const SYMBOL_SUFFIX: Record<ChordQualityId, string> = {
+  maj: '',
+  min: 'm',
+  dim: '°',
+  aug: '+',
+  dom7: '7',
+  maj7: 'maj7',
+  min7: 'm7',
+  m7b5: 'ø7',
+  dim7: '°7',
+  mMaj7: 'm(maj7)',
+  aug6: '',
+  other: '',
+};
+
+const prettyAcc = (p: string) => p.replace(/##/g, '𝄪').replace(/#/g, '♯').replace(/bb/g, '𝄫').replace(/(?<=[A-G])b/g, '♭');
+
+/** Lead-sheet name of a parsed chord: "D7/F♯", "A♭", "F♯°7". Augmented sixths list their notes. */
+export function chordName(c: RomanChord, withBass = true): string {
+  if (c.kind === 'aug6' || c.kind === 'ctdim' || c.kind === 'sus' || c.quality === 'other') {
+    if (c.kind === 'sus') {
+      const s = `${prettyAcc(c.root)}${c.seventh ? '7' : ''}${/sus2/.test(c.symbol) ? 'sus2' : 'sus4'}`;
+      return withBass && c.bass !== c.root ? `${s}/${prettyAcc(c.bass)}` : s;
+    }
+    if (c.kind === 'ctdim') return `${prettyAcc(c.pcs[0])}°7/${prettyAcc(c.bass)}`;
+    if (c.kind === 'symbol') return prettyAcc(c.symbol);
+    return c.pcs.map(prettyAcc).join('–');
+  }
+  const s = `${prettyAcc(c.root)}${SYMBOL_SUFFIX[c.quality]}`;
+  return withBass && c.bass !== c.root ? `${s}/${prettyAcc(c.bass)}` : s;
+}

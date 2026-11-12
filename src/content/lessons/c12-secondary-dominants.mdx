@@ -1,0 +1,59 @@
+So far every chord came from the key's own scale. The first and most useful step outside it: **give any chord its own dominant**.
+
+## The idea
+
+In C major, G is the dominant of C. But any major or minor chord can act as a *temporary tonic* for a moment, and get its own dominant in front of it. The dominant of G is D major (D F♯ A), so in C we call it **V/V** ("five of five").
+
+Compare a plain ii → V with V/V → V:
+
+<Progression romans="I ii V7 I" label="I – ii – V7 – I (diatonic)" />
+
+<Progression romans="I V65/V V7 I" label="I – V⁶₅/V – V7 – I (applied dominant)" />
+
+Hear the F♯ in the bass? It's a **borrowed leading tone**: it pulls up into G exactly like B pulls up into C. That extra pull is what makes applied dominants sound purposeful, a little lift toward the next chord.
+
+## How to spell V/x (or V7/x)
+
+1. Find the root of the target chord x.
+2. Go up a perfect 5th.
+3. Build a **major** triad (add a minor 7th for V7).
+
+| In C major | Target | Applied dominant |
+|---|---|---|
+| V/ii | D minor | A (A C♯ E) |
+| V/iii | E minor | B (B D♯ F♯) |
+| V/IV | F major | C (C E G) — add B♭ to make it audible: **V7/IV** |
+| V/V | G major | D (D F♯ A) |
+| V/vi | A minor | E (E G♯ B) |
+
+<Callout title="Only real chords can be tonicized">
+The target must be a major or minor triad. **vii°** can't be a tonic, so there is no "V/vii°".
+</Callout>
+
+<Progression romans="I V7/IV IV V7 I" label="I – V7/IV – IV: the tonic grows a ♭7 and leans into IV" />
+
+<Progression romans="I V7/vi vi ii V7 I" label="V7/vi → vi: a twist toward the relative minor" />
+
+You can chain them: each chord borrows the dominant of the next.
+
+<Progression romans="I V7/ii ii V7/V V I" />
+
+## Voice-leading rules (the same as for V7 → I)
+
+- The **applied leading tone** (the 3rd of V/x) rises a half step into the target's root.
+- The **7th** of V7/x falls by step.
+- Don't double the applied leading tone.
+
+The checker and the auto-voicing in this app apply exactly these rules to applied chords.
+
+<Quiz q="What is V7/V in G major?" options={["D7", "A7", "E7", "Am7"]} answer={1} explain="V of G is D; the dominant of D is A, so V7/V = A7 (A C♯ E G)." />
+
+<Quiz q="In C major, which note of V/vi is the borrowed leading tone?" options={["E", "G♯", "B", "A"]} answer={1} explain="V/vi = E G♯ B. G♯ is the leading tone of A minor; it rises to A." />
+
+<Quiz q="Which chord can't have a secondary dominant?" options={["ii", "IV", "vi", "vii°"]} answer={3} explain="A diminished triad can't sound like a temporary tonic." />
+
+<Composer title="The lift before the arrival">
+V/V before a half cadence is the classic "Hollywood lift": the raised 4th (F♯ in C) brightens the phrase just before it opens up on V. In an orchestral texture, give the borrowed leading tone to a clearly audible line (horns, or the top of the strings) so it really sings into its resolution. In the [progression playground](#/tools/playground?p=I%20IV%20V65/V%20V%20I&k=C) you can try V/x before any chord of your own progressions.
+</Composer>
+
+<Try drill="chromatic-spelling" level={0}>Spell secondary dominants in any key.</Try>

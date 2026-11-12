@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
-import { Play } from '../components/Play';
+import { Play, playByMode } from '../components/Play';
 import { Staff } from '../components/Staff';
 import { Keyboard, type KeyMark } from '../components/Keyboard';
 import { toMidi } from '../engine/theory';
 import { getExercise } from '../exercises/registry';
 import { SatbStaff } from '../components/SatbStaff';
 import { playMelody, playProgression } from '../engine/audio';
-import { parseRoman, prettyRoman, type KeyCtx } from '../engine/harmony/roman';
-import { realize, type Realization } from '../engine/harmony/voicing';
+import { type KeyCtx } from '../engine/harmony/roman';
+import { parseProgression, realizeProgression } from '../engine/harmony/sequence';
 import { RULE_LABELS, checkProgression, type Issue, type Satb } from '../engine/harmony/voiceleading';
 import { keySigFor } from '../exercises/harmonyLogic';
 
@@ -157,28 +157,52 @@ function useKey(tonic: string, minor?: boolean): KeyCtx {
   return { tonic, minor: !!minor };
 }
 
+const PLAYHEAD = '#2f6fdf';
+
 /**
  * <Progression romans="I IV V7 I" tonic="C" /> — auto-voiced in four parts (SATB),
  * notation with Roman numerals + playback (full, bass line, soprano).
+ * `romans` accepts the whole progression language: chord symbols, key changes ("G:"),
+ * pivots ("vi=G:ii") and specials (N6, It+6, ct°7, Vsus4).
  */
-export function Progression({ romans, tonic = 'C', minor, label, tempo = 1.0 }: { romans: string; tonic?: string; minor?: boolean; label?: string; tempo?: number }) {
+export function Progression({
+  romans,
+  tonic = 'C',
+  minor,
+  label,
+  tempo = 1.0,
+  keySig,
+}: {
+  romans: string;
+  tonic?: string;
+  minor?: boolean;
+  label?: string;
+  tempo?: number;
+  /** override the key signature, a major-key tonic (e.g. "C" for D Dorian) */
+  keySig?: string;
+}) {
   const key = useKey(tonic, minor);
-  const symbols = romans.trim().split(/\s+/);
   // the voicing search is not free: compute once per progression, not on every lesson re-render
-  const { r, error } = useMemo(() => {
-    try {
-      return { r: realize(romans.trim().split(/\s+/), { tonic, minor: !!minor }) as Realization, error: null };
-    } catch (e) {
-      return { r: null, error: (e as Error).message };
-    }
-  }, [romans, tonic, minor]);
-  if (!r) return <p className="error">⚠ {error}</p>;
-  const voicings = r.voicings;
+  const res = useMemo(() => realizeProgression(romans, { tonic, minor: !!minor }), [romans, tonic, minor]);
+  const [playing, setPlaying] = useState(-1);
+  if (!res.realization) return <p className="error">⚠ {res.error}</p>;
+  const voicings = res.realization.voicings;
+  const highlight: Record<string, string> = {};
+  if (playing >= 0) for (let v = 0; v < 4; v++) highlight[`${playing}:${v}`] = PLAYHEAD;
+  const play = async () => {
+    await playProgression(
+      voicings.map((v) => [...v]),
+      tempo,
+      { onEvent: setPlaying },
+    );
+    setPlaying(-1);
+  };
+  const k = minor ? tonic.toLowerCase() : tonic;
   return (
     <figure className="example">
-      <SatbStaff chords={r.names} labels={symbols.map(prettyRoman)} keySig={keySigFor(key)} />
+      <SatbStaff chords={res.realization.names} labels={res.parsed.items.map((i) => i.label)} keySig={keySig ?? keySigFor(key)} colors={highlight} />
       <figcaption>
-        <button type="button" className="play-btn" onClick={() => void playProgression(voicings.map((v) => [...v]), tempo)}>
+        <button type="button" className="play-btn" onClick={() => void play()}>
           ▶ {label ?? 'Listen'}
         </button>
         <button type="button" className="play-btn" onClick={() => void playMelody(voicings.map((v) => v[0]), tempo * 0.8)}>
@@ -187,6 +211,9 @@ export function Progression({ romans, tonic = 'C', minor, label, tempo = 1.0 }: 
         <button type="button" className="play-btn" onClick={() => void playMelody(voicings.map((v) => v[3]), tempo * 0.8)}>
           Soprano
         </button>
+        <Link className="play-btn" to={`/tools/playground?p=${encodeURIComponent(romans)}&k=${encodeURIComponent(k)}`} title="Open in the progression playground">
+          ✎ Edit
+        </Link>
       </figcaption>
     </figure>
   );
@@ -200,21 +227,21 @@ export function Progression({ romans, tonic = 'C', minor, label, tempo = 1.0 }: 
 export function Chorale({ notes, romans, tonic = 'C', minor, check, label }: { notes: string; romans?: string; tonic?: string; minor?: boolean; check?: boolean; label?: string }) {
   const key = useKey(tonic, minor);
   const names = notes.trim().split(/\s+/).map((c) => c.split(','));
-  const symbols = romans?.trim().split(/\s+/);
+  const parsed = romans ? parseProgression(romans, key) : null;
   const voicings = names.map((c) => c.map(toMidi) as Satb);
   let issues: Issue[] = [];
-  if (check) {
-    const chords = symbols?.map((s) => parseRoman(s, key));
+  if (check && parsed) {
+    const chords = parsed.items.map((i) => i.chord);
     issues = checkProgression(voicings, chords, key);
   }
   const colors: Record<string, string> = {};
   for (const i of issues) {
-    const pair = /parallel|direct|overlap|unresolved|leap|melodic/.test(i.rule);
+    const pair = /parallel|direct|overlap|unresolved|leap|melodic|cross/.test(i.rule);
     for (const ci of pair ? [i.at - 1, i.at] : [i.at]) for (const v of i.voices) colors[`${ci}:${v}`] = i.severity === 'error' ? '#c0393f' : '#c47f12';
   }
   return (
     <figure className="example">
-      <SatbStaff chords={names} labels={symbols?.map(prettyRoman)} keySig={keySigFor(key)} colors={colors} />
+      <SatbStaff chords={names} labels={parsed?.items.map((i) => i.label)} keySig={keySigFor(key)} colors={colors} />
       <figcaption>
         <button type="button" className="play-btn" onClick={() => void playProgression(voicings.map((v) => [...v]), 1.1)}>
           ▶ {label ?? 'Listen'}
@@ -234,4 +261,33 @@ export function Chorale({ notes, romans, tonic = 'C', minor, check, label }: { n
   );
 }
 
-export const lessonComponents = { Play, Staff, Quiz, Callout, Composer, KeyboardDemo, Try, Example, Progression, Chorale };
+/**
+ * <Voicings notes="C3,G3,E4,B4,D5 F2,C3,A3,E4,G4" labels="Cmaj9|Fmaj9" />
+ * Free voicings with any number of notes (extended chords, quartal stacks, clusters, pads).
+ */
+export function Voicings({ notes, labels, tempo = 1.6, label }: { notes: string; labels?: string; tempo?: number; label?: string }) {
+  const chords = notes.trim().split(/\s+/);
+  const names = labels?.split('|').map((s) => s.trim());
+  return (
+    <figure className="example">
+      <Staff clef="grand" notes={notes} maxWidth={Math.min(520, 180 + chords.length * 70)} />
+      {names && (
+        <div className="voicing-labels">
+          {names.map((n, i) => (
+            <span key={i} className="pill">
+              {n}
+            </span>
+          ))}
+        </div>
+      )}
+      <figcaption>
+        <Play notes={notes} mode="progression" tempo={tempo} label={label ?? 'Listen'} />
+        <button type="button" className="play-btn" onClick={() => void playByMode(chords[0].replace(/,/g, ' '), 'arpeggio', 0.3)}>
+          Arpeggiate{chords.length > 1 ? ' 1st' : ''}
+        </button>
+      </figcaption>
+    </figure>
+  );
+}
+
+export const lessonComponents = { Play, Staff, Quiz, Callout, Composer, KeyboardDemo, Try, Example, Progression, Chorale, Voicings };

@@ -484,13 +484,222 @@ export const TRACKS: TrackDef[] = [
     title: 'Chromatic & modal harmony',
     subtitle: 'Secondary dominants, mixture, mediants, modes — the colours of epic music.',
     units: [
-      { id: 'u12', title: '12 · Secondary dominants', lessons: [], planned: ['V/V and friends', 'Leading-tone chords & tonicization'] },
-      { id: 'u13', title: '13 · Modulation', lessons: [], planned: ['Pivot chords', 'Common-tone & direct modulation'] },
-      { id: 'u14', title: '14 · Modal mixture', lessons: [], planned: ['Borrowed chords: ♭VI ♭VII iv ♭III', 'The Picardy third'] },
-      { id: 'u15', title: '15 · Neapolitan & augmented 6ths', lessons: [], planned: ['The Neapolitan', 'Italian, French & German 6ths'] },
-      { id: 'u16', title: '16 · Cinematic harmony', lessons: [], planned: ['Chromatic mediants', 'Major↔minor shifts & minor plagal', 'Lydian IV and common-tone diminished'] },
-      { id: 'u17', title: '17 · Modes', lessons: [], planned: ['The modes by colour', 'Modal cadences, pedals & ostinatos'] },
-      { id: 'u18', title: '18 · Extended & hybrid harmony', lessons: [], planned: ['9ths, 11ths, 13ths', 'Sus, quartal & clusters', 'Polychords'] },
+      {
+        id: 'u12',
+        title: '12 · Secondary dominants',
+        lessons: [
+          {
+            id: 'c12-secondary-dominants',
+            title: 'V/V and friends',
+            minutes: 7,
+            summary: 'Give any chord its own dominant: the first and most useful chromatic chord.',
+            unlocks: ['chromatic-spelling'],
+            cards: [
+              { key: 'def', front: 'What is a secondary (applied) dominant?', back: 'The V or V7 of a chord other than the tonic, e.g. V/V. It briefly treats that chord as a tonic.' },
+              { key: 'vv-c', front: 'V7/V in C major?', back: 'D7 (D F♯ A C): the dominant of G. F♯ is the borrowed leading tone that rises to G.' },
+              { key: 'spell', front: 'How do you spell V7/x?', back: 'Find the root of x, go up a perfect 5th, build a dominant 7th (major triad + minor 7th) on it.' },
+              { key: 'no-dim', front: 'Which diatonic chord can’t be tonicized in major?', back: 'vii° — a diminished triad can’t act as a temporary tonic.' },
+            ],
+          },
+          {
+            id: 'c12-leading-tone-chords',
+            title: 'Leading-tone chords & tonicization',
+            minutes: 7,
+            summary: 'vii°7/x, the symmetry of the diminished 7th, and when a tonicization becomes a modulation.',
+            cards: [
+              { key: 'vii7v', front: 'vii°7/V in C major?', back: 'F♯°7 (F♯ A C E♭): the diminished 7th on G’s leading tone.' },
+              { key: 'dim-sym', front: 'Why are there only three different diminished 7th chords?', back: 'They’re stacked minor 3rds that divide the octave equally: every inversion is another dim7 (enharmonically), so any one can resolve to four different keys.' },
+              { key: 'tonic-vs-mod', front: 'Tonicization vs modulation?', back: 'Tonicization: a brief visit (an applied chord or two). Modulation: the new key is confirmed by a cadence and stays.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u13',
+        title: '13 · Modulation',
+        lessons: [
+          {
+            id: 'c13-pivot',
+            title: 'Pivot-chord modulation',
+            minutes: 7,
+            summary: 'Slide into a new key through a chord that belongs to both.',
+            cards: [
+              { key: 'close', front: 'Closely related keys of C major?', back: 'G, F, A minor, E minor, D minor (keys whose signatures differ by at most one accidental).' },
+              { key: 'pivot', front: 'Good pivot chord from C major to G major?', back: 'A minor: vi in C = ii in G (a predominant in the new key, followed by D7 – G).' },
+              { key: 'confirm', front: 'What confirms a modulation?', back: 'A cadence (usually V–I) in the new key.' },
+            ],
+          },
+          {
+            id: 'c13-direct',
+            title: 'Common-tone & direct modulation',
+            minutes: 6,
+            summary: 'Jump keys on purpose: through a held note, or with no preparation at all.',
+            cards: [
+              { key: 'ct-mod', front: 'Common-tone modulation?', back: 'One note is held (often in a sustained voice) while the harmony around it moves to a distant key, e.g. C major → A♭ major holding C.' },
+              { key: 'direct', front: 'Direct (phrase) modulation?', back: 'A new phrase simply starts in the new key, often after a cadence or a pause. No pivot.' },
+              { key: 'truck', front: 'The “truck-driver” modulation?', back: 'Repeat the last section a half or whole step higher: an instant energy boost (use sparingly).' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u14',
+        title: '14 · Modal mixture',
+        lessons: [
+          {
+            id: 'c14-mixture',
+            title: 'Borrowed chords: iv ♭VI ♭VII ♭III',
+            minutes: 8,
+            summary: 'Borrow chords from the parallel minor: the core of the epic sound.',
+            unlocks: ['chromatic-ear'],
+            cards: [
+              { key: 'def', front: 'What is modal mixture?', back: 'Borrowing chords from the parallel key (C minor chords inside C major), using ♭3, ♭6 and ♭7.' },
+              { key: 'bvi', front: '♭VI and ♭VII in C major?', back: 'A♭ major and B♭ major.' },
+              { key: 'victory', front: 'The ♭VI – ♭VII – I cadence?', back: 'Two borrowed major chords climbing by step into the major tonic: triumphant, heroic.' },
+              { key: 'iv', front: 'Effect of minor iv in a major key?', back: 'The 6th degree drops a half step (A → A♭ in C): a sudden, wistful shadow.' },
+            ],
+          },
+          {
+            id: 'c14-picardy',
+            title: 'Picardy third & major/minor shifts',
+            minutes: 6,
+            summary: 'End minor pieces in major, and flip the tonic between major and minor.',
+            cards: [
+              { key: 'picardy', front: 'Picardy third?', back: 'Ending a minor-key piece on a MAJOR tonic chord (raised 3rd).' },
+              { key: 'minor-plagal', front: 'Minor plagal cadence?', back: 'iv → I in a major key: bittersweet, nostalgic.' },
+              { key: 'shift', front: 'I → i (same root, major to minor): dramatic effect?', back: 'The light goes out: one note (the 3rd) drops a half step and the whole mood flips. Classic “something’s wrong” moment.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u15',
+        title: '15 · Neapolitan & augmented 6ths',
+        lessons: [
+          {
+            id: 'c15-neapolitan',
+            title: 'The Neapolitan',
+            minutes: 6,
+            summary: 'A major chord on the lowered 2nd degree: tragic pre-dominant.',
+            cards: [
+              { key: 'n6', front: 'Neapolitan 6th (N⁶) in A minor?', back: 'B♭ major in first inversion: D in the bass (B♭ D F over D).' },
+              { key: 'n6-double', front: 'What do you double in N⁶?', back: 'The bass (the 4th scale degree).' },
+              { key: 'n6-resolve', front: 'Where does ♭2 go?', back: 'Down: to the leading tone over V (a diminished 3rd), or to the tonic over a cadential 6/4 first.' },
+            ],
+          },
+          {
+            id: 'c15-aug-sixths',
+            title: 'Italian, French & German 6ths',
+            minutes: 8,
+            summary: 'Two notes that expand outward onto the dominant: maximum pull.',
+            cards: [
+              { key: 'it', front: 'Italian augmented 6th in C?', back: 'A♭ – C – F♯ (♭6, 1, ♯4).' },
+              { key: 'fr-ger', front: 'French vs German 6th?', back: 'French adds the 2nd degree (A♭ C D F♯), German adds ♭3 (A♭ C E♭ F♯).' },
+              { key: 'resolve', front: 'How does an augmented 6th resolve?', back: '♭6 falls and ♯4 rises, both by half step, to the octave on 5 (the dominant).' },
+              { key: 'ger-dom', front: 'Why does the German 6th sound like a dominant 7th?', back: 'A♭ C E♭ F♯ = A♭ C E♭ G♭ enharmonically: A♭7. Only the spelling (and resolution) differs.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u16',
+        title: '16 · Cinematic harmony',
+        lessons: [
+          {
+            id: 'c16-mediants',
+            title: 'Chromatic mediants',
+            minutes: 7,
+            summary: 'Jumps by a third with one common tone: the signature of film music.',
+            cards: [
+              { key: 'def', front: 'Chromatic mediant?', back: 'Two chords of the same quality whose roots are a 3rd apart, sharing one common tone (e.g. C major → E major or A♭ major).' },
+              { key: 'list', front: 'Chromatic mediants of C major?', back: 'E, A, E♭ and A♭ major.' },
+              { key: 'voice', front: 'Key to voicing a chromatic mediant?', back: 'Hold the common tone in the same voice; move every other voice by half or whole step.' },
+            ],
+          },
+          {
+            id: 'c16-cinematic',
+            title: 'Lydian II, common-tone °7 & the epic loop',
+            minutes: 7,
+            summary: 'Three more moves from the film-score toolbox.',
+            cards: [
+              { key: 'lyd', front: 'I → II (major II) in a major key?', back: 'The raised 4th (F♯ in C) of Lydian: floating, magical “wonder” sound.' },
+              { key: 'ctdim', front: 'Common-tone diminished 7th?', back: 'A dim7 that shares one note with the chord it decorates (C under D♯ F♯ A C → C E G). The other notes slide by half step.' },
+              { key: 'epic-loop', front: 'The modern “epic” minor loop?', back: 'i – VI – III – VII (A minor: Am F C G): all-major colours around a minor tonic, no dominant.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u17',
+        title: '17 · Modes',
+        lessons: [
+          {
+            id: 'c17-modes',
+            title: 'The modes by colour',
+            minutes: 8,
+            summary: 'Seven modes, bright to dark, each with one characteristic note and chord.',
+            unlocks: ['mode-ear'],
+            cards: [
+              { key: 'order', front: 'Modes from brightest to darkest?', back: 'Lydian, Ionian, Mixolydian, Dorian, Aeolian, Phrygian, Locrian (each lowers one more note).' },
+              { key: 'lyd', front: 'Lydian characteristic note & chord?', back: '♯4 — the major II chord.' },
+              { key: 'mixo', front: 'Mixolydian characteristic note & chord?', back: '♭7 — the ♭VII chord (and a minor v).' },
+              { key: 'dor', front: 'Dorian characteristic note & chord?', back: 'Raised 6 (in minor) — the major IV chord.' },
+              { key: 'phr', front: 'Phrygian characteristic note & chord?', back: '♭2 — the ♭II chord.' },
+            ],
+          },
+          {
+            id: 'c17-modal-harmony',
+            title: 'Modal cadences, pedals & ostinatos',
+            minutes: 7,
+            summary: 'How to keep a mode from turning back into major/minor.',
+            cards: [
+              { key: 'avoid', front: 'Why avoid V7 → I in modal writing?', back: 'Its leading tone drags the ear back to plain major/minor; use the mode’s characteristic chord instead.' },
+              { key: 'cad', front: 'Typical modal cadences?', back: '♭VII–I (Mixolydian), IV–i (Dorian), ♭II–i (Phrygian), II–I (Lydian), ♭VI–♭VII–i (Aeolian).' },
+              { key: 'pedal', front: 'Pedal point?', back: 'A sustained (usually bass) note held while harmonies change above it: it anchors the tonic, so modes stay clear.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u18',
+        title: '18 · Extended & hybrid harmony',
+        lessons: [
+          {
+            id: 'c18-extensions',
+            title: '9ths, 11ths, 13ths & add chords',
+            minutes: 7,
+            summary: 'Stack more thirds for richer colour, and voice them so they don’t turn to mud.',
+            cards: [
+              { key: 'ext', front: 'Extensions of a chord?', back: '9th, 11th, 13th: thirds stacked above the 7th (the 2nd, 4th and 6th an octave up).' },
+              { key: 'add', front: 'Cadd9 vs C9?', back: 'Cadd9 = C E G D (no 7th). C9 = C E G B♭ D (dominant 7th + 9th).' },
+              { key: 'omit', front: 'What can you leave out of a 13th chord?', back: 'The 5th, often the root (bass player has it) and the 11th; keep 3rd, 7th and 13th.' },
+              { key: 'mud', front: 'Where do extensions belong in an orchestral voicing?', back: 'High: keep the low register to roots and 5ths, put 9ths/13ths in upper strings or winds.' },
+            ],
+          },
+          {
+            id: 'c18-sus-quartal',
+            title: 'Sus, quartal & cluster voicings',
+            minutes: 7,
+            summary: 'Open, ambiguous sounds: suspensions without resolution, stacks of 4ths, tone clusters.',
+            cards: [
+              { key: 'sus', front: 'Why are sus chords so common in trailers?', back: 'No 3rd: neither major nor minor, so they sound open, unresolved and powerful.' },
+              { key: 'quartal', front: 'Quartal voicing?', back: 'A chord built from stacked 4ths (D G C F): modern, open, modal.' },
+              { key: 'cluster', front: 'Cluster: where does it work?', back: 'Adjacent seconds; shimmering when high and soft, tense in the middle, pure mud in the bass.' },
+            ],
+          },
+          {
+            id: 'c18-polychords',
+            title: 'Polychords & hybrid textures',
+            minutes: 6,
+            summary: 'Stack two chords, and layer simple lows under colourful highs.',
+            cards: [
+              { key: 'poly', front: 'What is D/C as a polychord?', back: 'A D major triad on top of a C major triad (or C bass): C Lydian colour, C(maj7)(9)(♯11)-ish.' },
+              { key: 'upper', front: 'Upper-structure triad?', back: 'A simple triad placed above a different bass/chord, implying extensions in a clean, playable way.' },
+              { key: 'petr', front: 'C major + F♯ major together?', back: 'Two triads a tritone apart (“Petrushka chord”): bright but clashing, magical chaos.' },
+            ],
+          },
+        ],
+      },
     ],
   },
   {

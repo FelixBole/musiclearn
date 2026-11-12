@@ -22,6 +22,8 @@ import {
 
 import { cadenceEar, errorSpotting, harmonizeMelody, progressionEar, romanAnalysis, voiceNext } from './harmonyLogic';
 import { AnalysisView, CadenceEarView, DictationView, ErrorSpotView, HarmonizeView, VoiceNextView } from './harmonyViews';
+import { chromaticEar, chromaticSpelling, modeEar } from './chromaticLogic';
+import { ChromaticEarView, ChromaticSpellingView, ModeEarView } from './chromaticViews';
 
 export const EXERCISES: ExerciseDef[] = [
   { ...noteReading, View: NoteReadingView, input: 'mixed', secondsPerQuestion: 6 },
@@ -39,6 +41,10 @@ export const EXERCISES: ExerciseDef[] = [
   { ...errorSpotting, View: ErrorSpotView, input: 'choices', secondsPerQuestion: 20 },
   { ...voiceNext, View: VoiceNextView, input: 'keyboard', secondsPerQuestion: 40 },
   { ...harmonizeMelody, View: HarmonizeView, input: 'choices', secondsPerQuestion: 60 },
+  // Track C — chromatic & modal
+  { ...chromaticSpelling, View: ChromaticSpellingView, input: 'choices', secondsPerQuestion: 10 },
+  { ...chromaticEar, View: ChromaticEarView, input: 'choices', secondsPerQuestion: 14 },
+  { ...modeEar, View: ModeEarView, input: 'choices', secondsPerQuestion: 16 },
 ];
 
 export function getExercise(id: string): ExerciseDef | undefined {

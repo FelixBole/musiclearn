@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { Keyboard, type KeyMark } from '../../components/Keyboard';
 import { Staff } from '../../components/Staff';
 import { useChordCapture, useHeldNotes } from '../../engine/input/hooks';
@@ -27,6 +28,16 @@ export function ToolsPage() {
   return (
     <div className="page tools" onPointerDown={() => void ensureAudio()}>
       <h1>Tools</h1>
+      <nav className="tool-links">
+        <Link to="/tools/playground" className="tool-link">
+          <b>🎼 Progression playground</b>
+          <span>Type numerals or chord symbols, hear them voiced in four parts, check the voice leading, export MIDI to your DAW.</span>
+        </Link>
+        <Link to="/tools/connect" className="tool-link">
+          <b>🔀 Passing-chord explorer</b>
+          <span>Pick two chords and hear every classic way to connect them, from secondary dominants to chromatic mediants.</span>
+        </Link>
+      </nav>
       <section className="card">
         <h2>Chord identifier</h2>
         <p className="muted">
@@ -90,9 +101,8 @@ export function ToolsPage() {
       <section className="card muted-card">
         <h2>Coming next</h2>
         <ul>
-          <li>Progression playground — type Roman numerals, hear them orchestrated, export MIDI to your DAW</li>
-          <li>Passing-chord explorer — pick two chords, get every way to connect them</li>
-          <li>Motif transformer — modes, reharmonization, augmentation</li>
+          <li>Orchestral sounds (strings, brass, winds) for the playground</li>
+          <li>Motif transformer: modes, reharmonization, augmentation</li>
         </ul>
       </section>
     </div>

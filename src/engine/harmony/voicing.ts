@@ -55,7 +55,14 @@ export function chordCost(v: Satb, chord: RomanChord): number {
   const pcs = chord.pcs.map(pcOf);
   const counts = pcs.map((p) => v.filter((m) => pc(m) === p).length);
   let cost = 0;
-  if (!chord.seventh) {
+  if (chord.kind || chord.essential) {
+    // special / extended chords: completeness is enforced by the checker (essential tones);
+    // here just prefer the conventional doubling
+    if (!chord.seventh && chord.pcs.length === 3 && counts[2] === 0) cost += 3; // keep triads complete
+    const distinct = new Set(v.map(pc)).size;
+    const pd = pcOf(chord.preferDouble ?? chord.root);
+    if (distinct < 4 && v.filter((m) => pc(m) === pd).length < 2) cost += 1.5;
+  } else if (!chord.seventh) {
     if (counts[2] === 0) cost += 3; // omitted 5th
     if (chord.inversion === 0) {
       if (counts[1] > 1) cost += chord.degree === 6 || chord.degree === 4 ? 2 : 4; // doubled 3rd (ok-ish in vi after V)
@@ -73,6 +80,9 @@ export function chordCost(v: Satb, chord: RomanChord): number {
   if (v[3] > 76) cost += (v[3] - 76) * 0.3;
   // tenor/bass spacing: avoid > 2 octaves... and very low close thirds
   if (v[1] - v[0] > 19) cost += 1;
+  // keep the bass in its resonant register, and avoid bass/tenor unisons
+  if (v[0] > 55) cost += (v[0] - 55) * 0.3;
+  if (v[0] === v[1]) cost += 0.5;
   return cost;
 }
 
@@ -93,8 +103,12 @@ export interface Realization {
   names: string[][];
 }
 
-export function realize(symbols: string[], key: KeyCtx, opts: VoicingOptions = {}): Realization {
-  const chords = symbols.map((s) => parseRoman(s, key));
+/**
+ * Voice a progression. Items are Roman numerals (read in `key`) or already-parsed chords
+ * (which carry their own key, e.g. after a modulation or from chord symbols).
+ */
+export function realize(items: (string | RomanChord)[], key: KeyCtx, opts: VoicingOptions = {}): Realization {
+  const chords = items.map((s) => (typeof s === 'string' ? parseRoman(s, key) : s));
   const cands = chords.map((c, i) => {
     let list = enumerateVoicings(c, key, opts.allowErrors);
     const sm = opts.soprano?.[i];
@@ -102,7 +116,9 @@ export function realize(symbols: string[], key: KeyCtx, opts: VoicingOptions = {
     if (sm !== undefined) list = list.filter((v) => v[3] === sm);
     if (sp !== undefined) list = list.filter((v) => pc(v[3]) === sp);
     if (opts.distinctNotes) list = list.filter((v) => new Set(v).size === 4);
-    if (!list.length) throw new Error(`No voicing for ${c.symbol} with the given soprano`);
+    if (!list.length) {
+      throw new Error(sm !== undefined || sp !== undefined ? `No voicing for ${c.symbol} with the given soprano` : `${c.symbol} can't be voiced in four parts`);
+    }
     return list;
   });
   // DP

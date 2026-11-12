@@ -27,7 +27,10 @@ Progress is stored locally (IndexedDB) on each device. Move it between PC and ph
 ## Project layout
 ```
 src/engine/theory     note/interval/chord/key helpers on top of tonal (tested)
-src/engine/harmony    Roman numerals, voice-leading checker, SATB voicing engine, progression grammar
+src/engine/harmony    Roman numerals (incl. N6, It/Fr/Ger+6, ct°7, sus), chord symbols, progression text
+                      (key changes, pivots), voice-leading checker, SATB voicing engine, passing-chord explorer
+src/engine/midiExport.ts   Standard MIDI file export (one track per voice)
+src/app/tools         Progression playground, passing-chord explorer
 src/engine/audio      Tone.js sampled piano (Salamander, bundled in public/samples)
 src/engine/input      unified note bus: MIDI + on-screen keyboard (+ mic later)
 src/components        Staff (VexFlow), Keyboard, Play
@@ -38,7 +41,7 @@ src/progress, src/srs Dexie DB, settings, adaptive skills, FSRS scheduling
 
 ### Adding a lesson
 1. Add a `LessonDef` (id, title, cards, unlocks) to `src/content/curriculum.ts`.
-2. Create `src/content/lessons/<id>.mdx`. You can use `<Example>`, `<Staff>`, `<Play>`, `<KeyboardDemo>`, `<Quiz>`, `<Callout>`, `<Composer>`, `<Try drill="…">`, `<Progression romans="I IV V I" tonic="C">` (auto-voiced SATB) and `<Chorale notes="C3,G3,E4,C5 …" romans="I …" check>` (explicit voicings, with the checker highlighting problems). `npm test` verifies every `<Progression>` voices without errors.
+2. Create `src/content/lessons/<id>.mdx`. You can use `<Example>`, `<Staff>`, `<Play>`, `<KeyboardDemo>`, `<Quiz>`, `<Callout>`, `<Composer>`, `<Try drill="…">`, `<Progression romans="I IV V I" tonic="C">` (auto-voiced SATB; accepts chord symbols, key changes `G:`, pivots `vi=G:ii`, and `keySig` for modes), `<Voicings notes="C3,G3,E4,B4,D5 …" labels="Cmaj9|…">` (free voicings, any number of notes) and `<Chorale notes="C3,G3,E4,C5 …" romans="I …" check>` (explicit voicings, with the checker highlighting problems). `npm test` verifies every `<Progression>` voices without errors.
 
 ### Adding a drill
 1. Write `generate()` and a `check…()` in `src/exercises/logic.ts`, with tests in `logic.test.ts`.
@@ -47,7 +50,7 @@ src/progress, src/srs Dexie DB, settings, adaptive skills, FSRS scheduling
 ## Roadmap
 - [x] M0–M2: scaffold, core engine, learning loop, Track A (Foundations), 8 drills, chord identifier tool
 - [x] M3: diatonic harmony (Track B, 13 lessons), voice-leading checker, SATB auto-voicing engine, 6 harmony drills (cadences, dictation, Roman-numeral analysis, error spotting, voice-the-next-chord, melody harmonization)
-- [ ] M4: chromatic & modal (Track C), progression playground, passing-chord explorer, MIDI export
+- [x] M4: chromatic & modal (Track C, 15 lessons), 3 drills (chromatic chords by ear, chromatic spelling, modes by ear), progression playground, passing-chord explorer, MIDI export
 - [ ] M5: composer track (Track D), orchestral samples (VSCO2 CE), voicing/range drills, motif transformer
 - [ ] M6: optional Claude tutor, mic pitch detection, sync
 

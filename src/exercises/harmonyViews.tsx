@@ -32,7 +32,7 @@ import { ChoiceGrid } from './widgets';
 const ERR = '#c0393f';
 const WARN = '#c47f12';
 
-function usePlayOnQuestion(play: () => void, q: unknown) {
+export function usePlayOnQuestion(play: () => void, q: unknown) {
   const ref = useRef(play);
   ref.current = play;
   useEffect(() => {
@@ -60,7 +60,7 @@ function colorsFor(issues: Issue[], chordCount: number, offset = 0): Record<stri
   return out;
 }
 
-function KeyBadge({ k }: { k: { tonic: string; minor: boolean } }) {
+export function KeyBadge({ k }: { k: { tonic: string; minor: boolean } }) {
   return <span className="pill">{keyLabel(k)}</span>;
 }
 
