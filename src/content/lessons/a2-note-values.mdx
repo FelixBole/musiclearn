@@ -1,0 +1,31 @@
+## Note values
+
+Each note value is half the previous one:
+
+| Name (US) | Name (UK) | Beats in 4/4 |
+|---|---|---|
+| whole | semibreve | 4 |
+| half | minim | 2 |
+| quarter | crotchet | 1 |
+| eighth | quaver | ½ |
+| sixteenth | semiquaver | ¼ |
+
+Every note value has a matching **rest** (a silence of the same length).
+
+<Staff items={[{ keys: ['C5'], duration: 'w' }]} maxWidth={140} />
+<Staff items={[{ keys: ['C5'], duration: 'h' }, { keys: ['C5'], duration: 'h' }]} maxWidth={180} />
+<Staff items={[{ keys: ['C5'], duration: 'q' }, { keys: ['C5'], duration: 'q' }, { keys: ['C5'], duration: 'q' }, { keys: ['C5'], duration: 'q' }]} maxWidth={240} />
+
+## Dots and ties
+
+A **dot** adds half the note's value: a dotted half = 3 beats; a dotted quarter = 1½ beats. The dotted-quarter + eighth rhythm is everywhere in heroic themes (think of a horn call).
+
+A **tie** connects two notes of the *same pitch* into one longer sound — used when a note crosses a barline or needs a length no single value can express.
+
+<Quiz q="How many beats does a dotted half note last (in 4/4)?" options={["2", "2½", "3", "4"]} answer={2} explain="Half note = 2 beats, plus half of that (1) = 3 beats." />
+
+<Quiz q="A curved line connects two Cs of the same pitch. It means…" options={["Play them legato", "Hold as one longer note", "Accent the second"]} answer={1} explain="That's a tie. A curved line over DIFFERENT pitches is a slur (play smoothly)." />
+
+<Composer title="Piano roll ↔ notation">
+In your DAW's piano roll, length = width of the block. In notation, length = note *shape*. Learning both lets you read a score and immediately imagine the piano roll — and vice versa when exporting MIDI to a notation program for players.
+</Composer>

@@ -1,0 +1,36 @@
+## Half steps and whole steps
+
+The smallest distance in Western music is the **half step** (semitone): any key to the very next key on the piano, black or white. Two half steps make a **whole step** (tone).
+
+<KeyboardDemo highlight="E4 F4 B4 C5" from="C4" to="C5" />
+
+Between most white keys there is a black key — so they are a whole step apart. But **E–F** and **B–C** have no black key between them: they are **natural half steps**. This tiny fact explains the shape of every scale.
+
+## Accidentals
+
+- **♯ sharp** raises a note a half step
+- **♭ flat** lowers a half step
+- **♮ natural** cancels a sharp/flat
+- **𝄪 double sharp** / **𝄫 double flat** — two half steps (they appear in keys like G♯ minor, or in chromatic harmony)
+
+An accidental lasts **until the end of the bar**, for notes on that same line or space. The barline cancels it.
+
+<Example notes="F4 F#4 G4 Gb4" label="F – F♯ – G – G♭" />
+
+## Enharmonic equivalents
+
+The same piano key can have several names: C♯ = D♭, F♯ = G♭, even E♯ = F and C♭ = B. These are **enharmonic** spellings. They *sound* the same but *mean* different things in a key — later, spelling correctly (e.g. the 3rd of a B major chord is D♯, not E♭) will make harmony far easier to read.
+
+<Quiz q="Which pair is enharmonic?" options={["C♯ and D", "E♯ and F", "B♭ and B"]} answer={1} explain="E–F is a natural half step, so raising E a half step lands on F." />
+
+## Octave names: C4 and your DAW
+
+To say *which* C, we number octaves: **scientific pitch notation** starts each octave at C. **Middle C = C4**, the A above it = A4 (440 Hz). The piano spans A0 to C8.
+
+<Callout type="warn" title="Your DAW might disagree">
+Many DAWs and sample libraries label middle C as **C3** (Ableton, Cubase and Logic by default, many Kontakt libraries), and some as **C5** (FL Studio). This app always uses **C4 = middle C**. When you read ranges in orchestration books, they use C4 too — convert carefully when you set keyswitches or check ranges in your DAW.
+</Callout>
+
+<Quiz q="Which note is a half step above B4?" options={["C5", "C4", "B♯5"]} answer={0} explain="B–C is a natural half step, and the octave number changes at C: B4 → C5. (B♯4 is the enharmonic name for C5.)" />
+
+<Try drill="note-reading" level={3}>Notes with sharps and flats in both clefs.</Try>
