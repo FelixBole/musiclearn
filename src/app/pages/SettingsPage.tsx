@@ -3,7 +3,7 @@ import { updateSettings, useSettings } from '../../progress/settings';
 import { exportBackup, importBackup } from '../../progress/db';
 import { RepairTools } from '../Resilience';
 import { useMidiStatus } from '../hooks';
-import { ensureAudio, playMelody } from '../../engine/audio';
+import { ensureAudio, orchestraFileUrls, playMelody } from '../../engine/audio';
 
 export function SettingsPage() {
   const s = useSettings();
@@ -104,6 +104,8 @@ export function SettingsPage() {
         </label>
       </section>
 
+      <OfflineSounds />
+
       <section className="card">
         <h2>Your data</h2>
         <p className="muted small">Progress is stored only on this device. Export a backup to move it to another device (e.g. PC ↔ phone).</p>
@@ -131,9 +133,52 @@ export function SettingsPage() {
       <section className="card muted-card">
         <h2>About</h2>
         <p className="small muted">
-          MusicLearn v{__APP_VERSION__}. Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0). Notation: VexFlow. Theory: Tonal. Scheduling: FSRS.
+          MusicLearn v{__APP_VERSION__}. Piano: Salamander Grand Piano by Alexander Holm (CC-BY 3.0). Orchestra: VSCO 2 Community Edition (CC0). Notation: VexFlow. Theory: Tonal. Scheduling: FSRS.
         </p>
       </section>
     </div>
+  );
+}
+
+/** Orchestral samples load on first use; this fetches them all so they work offline. */
+function OfflineSounds() {
+  const [state, setState] = useState<{ done: number; total: number; failed: number } | null>(null);
+  const run = async () => {
+    const urls = orchestraFileUrls();
+    let done = 0;
+    let failed = 0;
+    setState({ done, total: urls.length, failed });
+    // a few at a time; the service worker caches every response
+    const queue = [...urls];
+    await Promise.all(
+      Array.from({ length: 4 }, async () => {
+        for (let u = queue.shift(); u; u = queue.shift()) {
+          try {
+            const r = await fetch(u);
+            if (!r.ok) failed++;
+            await r.arrayBuffer();
+          } catch {
+            failed++;
+          }
+          done++;
+          setState({ done, total: urls.length, failed });
+        }
+      }),
+    );
+  };
+  const finished = state && state.done === state.total;
+  return (
+    <section className="card">
+      <h2>Orchestral sounds</h2>
+      <p className="muted small">
+        Strings, brass and woodwinds (about 3 MB) download the first time you play them. To use them offline (on the go), download them all once.
+      </p>
+      <div className="row">
+        <button type="button" className="btn ghost" onClick={() => void run()} disabled={!!state && !finished}>
+          {finished ? 'Downloaded ✓' : state ? `Downloading… ${state.done}/${state.total}` : 'Download for offline use'}
+        </button>
+      </div>
+      {finished && state.failed > 0 && <p className="small">⚠ {state.failed} files failed. Check your connection and try again.</p>}
+    </section>
   );
 }

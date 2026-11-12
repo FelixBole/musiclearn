@@ -6,7 +6,9 @@ import { Keyboard, type KeyMark } from '../components/Keyboard';
 import { toMidi } from '../engine/theory';
 import { getExercise } from '../exercises/registry';
 import { SatbStaff } from '../components/SatbStaff';
-import { playMelody, playProgression } from '../engine/audio';
+import { playMelody, playProgression, playVoicings } from '../engine/audio';
+import { Counterpoint, Instrument, Layers, Motif, OrchVoicing, SoundSelect } from './ComposerComponents';
+import { useLessonSound } from './soundPref';
 import { type KeyCtx } from '../engine/harmony/roman';
 import { parseProgression, realizeProgression } from '../engine/harmony/sequence';
 import { RULE_LABELS, checkProgression, type Issue, type Satb } from '../engine/harmony/voiceleading';
@@ -185,14 +187,16 @@ export function Progression({
   // the voicing search is not free: compute once per progression, not on every lesson re-render
   const res = useMemo(() => realizeProgression(romans, { tonic, minor: !!minor }), [romans, tonic, minor]);
   const [playing, setPlaying] = useState(-1);
+  const [sound, setSound] = useLessonSound();
   if (!res.realization) return <p className="error">⚠ {res.error}</p>;
   const voicings = res.realization.voicings;
   const highlight: Record<string, string> = {};
   if (playing >= 0) for (let v = 0; v < 4; v++) highlight[`${playing}:${v}`] = PLAYHEAD;
   const play = async () => {
-    await playProgression(
+    await playVoicings(
       voicings.map((v) => [...v]),
-      tempo,
+      sound,
+      sound === 'piano' ? tempo : tempo * 1.35,
       { onEvent: setPlaying },
     );
     setPlaying(-1);
@@ -211,6 +215,7 @@ export function Progression({
         <button type="button" className="play-btn" onClick={() => void playMelody(voicings.map((v) => v[3]), tempo * 0.8)}>
           Soprano
         </button>
+        <SoundSelect value={sound} onChange={setSound} />
         <Link className="play-btn" to={`/tools/playground?p=${encodeURIComponent(romans)}&k=${encodeURIComponent(k)}`} title="Open in the progression playground">
           ✎ Edit
         </Link>
@@ -290,4 +295,4 @@ export function Voicings({ notes, labels, tempo = 1.6, label }: { notes: string;
   );
 }
 
-export const lessonComponents = { Play, Staff, Quiz, Callout, Composer, KeyboardDemo, Try, Example, Progression, Chorale, Voicings };
+export const lessonComponents = { Play, Staff, Quiz, Callout, Composer, KeyboardDemo, Try, Example, Progression, Chorale, Voicings, Instrument, OrchVoicing, Motif, Counterpoint, Layers };

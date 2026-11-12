@@ -1,0 +1,41 @@
+Film music follows the picture. Game music follows the **player**, who might stay in one area for ten minutes or leave after ten seconds. Two basic tools: **loops** that can repeat without wearing out, and **stingers** that react to events.
+
+## Loops
+
+A loop must:
+
+1. **Reconnect seamlessly**: the last bar must lead naturally into the first.
+2. **Not end too strongly**: a perfect authentic cadence at the loop point sounds like an ending every time it repeats.
+3. **Survive repetition**: vary orchestration across the loop, avoid one unforgettable "hook" moment that becomes annoying on the 20th hearing.
+
+Harmonically, end the loop on a chord that **leads back** to the opening chord:
+
+<Progression romans="i VI III VII" tonic="D" minor label="Loop: VII leads back into i" />
+
+<Progression romans="I vi IV V" tonic="G" label="Loop: V leads back into I" />
+
+<Progression romans="I IV bVII IV" tonic="D" label="Mixolydian loop: no leading tone at all" />
+
+<Callout type="warn" title="The loop-point trap">
+Sustained notes and **reverb tails** get cut when the file loops. Plan for it: end with short notes or a breath, or bounce the tail of the last bar onto the first bar of the file (most audio middleware also supports tail regions).
+</Callout>
+
+## Stingers
+
+A **stinger** is a short cue (1–5 seconds) triggered by an event. It should be instantly readable and **in the key of the music under it** (or keyless, like a percussion hit), so it doesn't clash with the playing loop.
+
+<Progression romans="I bVI bVII I" tonic="C" tempo={0.5} label="Victory / item found" />
+
+<Progression romans="i bII i" tonic="E" minor tempo={0.6} label="Danger / enemy spotted" />
+
+<Progression romans="I iv I" tonic="F" tempo={0.6} label="Quest complete (bittersweet)" />
+
+<Progression romans="i Ger+6 V" tonic="A" minor tempo={0.6} label="Cliffhanger" />
+
+<Quiz q="Why avoid a strong V–I at the loop point?" options={["It's out of key", "It sounds like an ending on every repetition", "It is too quiet"]} answer={1} />
+
+<Quiz q="A good stinger…" options={["Is long and develops a theme", "Is short, readable and fits the key of the music under it", "Always modulates"]} answer={1} />
+
+<Composer title="A stinger kit per area">
+For each area of the game, write the loop and a small kit of stingers **in the same key**: discovery, danger, success, failure. Matching keys means the game engine can fire them at any moment without clashes. And reuse your motifs: a stinger that quotes the hero motif in a fragment makes the world feel coherent.
+</Composer>

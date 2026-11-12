@@ -707,13 +707,209 @@ export const TRACKS: TrackDef[] = [
     title: 'Composer: orchestral & hybrid',
     subtitle: 'Ranges, voicing, texture, motif development and game-music form.',
     units: [
-      { id: 'u19', title: '19 · Instruments', lessons: [], planned: ['Ranges & sweet spots', 'Transposing instruments'] },
-      { id: 'u20', title: '20 · Orchestral voicing', lessons: [], planned: ['The harmonic series as a voicing guide', 'Doubling & avoiding mud'] },
-      { id: 'u21', title: '21 · Texture & layering', lessons: [], planned: ['Melody / countermelody / pad / bass / ostinato', 'Strings, brass, woodwinds'] },
-      { id: 'u22', title: '22 · Counterpoint for composers', lessons: [], planned: ['First & second species', 'Writing countermelodies'] },
-      { id: 'u23', title: '23 · Leitmotif development', lessons: [], planned: ['Mode change & reharmonization', 'Augmentation, diminution, fragmentation'] },
-      { id: 'u24', title: '24 · Game-music form', lessons: [], planned: ['Loops & stingers', 'Vertical layering & horizontal resequencing'] },
-      { id: 'u25', title: '25 · Cue analysis', lessons: [], planned: ['Analysis templates'] },
+      {
+        id: 'u19',
+        title: '19 · Instruments',
+        lessons: [
+          {
+            id: 'd19-strings',
+            title: 'The string section',
+            minutes: 7,
+            summary: 'Violins, violas, cellos, basses: ranges, registers and what each does best.',
+            unlocks: ['instrument-range'],
+            cards: [
+              { key: 'lowest', front: 'Lowest notes of violin, viola, cello (sounding)?', back: 'Violin G3, viola C3, cello C2 (their lowest open strings).' },
+              { key: 'bass', front: 'How does the double bass transpose?', back: 'It sounds an octave lower than written.' },
+              { key: 'roles', front: 'Typical roles in a string section?', back: 'Violins I: melody · Violins II & violas: harmony, inner lines · Cellos: bass or tenor melody · Basses: the octave below the cellos.' },
+            ],
+          },
+          {
+            id: 'd19-winds-brass',
+            title: 'Woodwinds & brass',
+            minutes: 8,
+            summary: 'Ranges, sweet spots and colours of the winds and the brass.',
+            cards: [
+              { key: 'flute-low', front: 'Low flute (around C4–G4): strength?', back: 'Breathy and soft: beautiful, but easily covered. Thin out the orchestra around it.' },
+              { key: 'clar-reg', front: 'Clarinet registers?', back: 'Chalumeau (low, dark, velvety), throat tones (weaker), clarion (bright, singing), altissimo (shrill).' },
+              { key: 'horn-sweet', front: 'The horn’s heroic register?', back: 'Roughly C3–F4 (sounding): round, noble, the classic film-score horn.' },
+              { key: 'brass-weight', front: 'Roughly how many horns balance one trumpet or trombone at forte?', back: 'About two: the horn is softer-edged. That’s why orchestras have four horns.' },
+            ],
+          },
+          {
+            id: 'd19-transposing',
+            title: 'Transposing instruments',
+            minutes: 6,
+            summary: 'Why a horn part says G when the horn sounds C — and how to read and write it.',
+            unlocks: ['transposition'],
+            cards: [
+              { key: 'bb', front: 'B♭ clarinet / trumpet: written vs sounding?', back: 'Sounds a major 2nd lower than written. To get concert C, write D.' },
+              { key: 'f', front: 'Horn in F: written vs sounding?', back: 'Sounds a perfect 5th lower than written. To get concert C, write G.' },
+              { key: 'octave', front: 'Piccolo and double bass?', back: 'Piccolo sounds an octave higher than written; double bass an octave lower.' },
+              { key: 'rule', front: 'An instrument “in X”: what sounds when it plays a written C?', back: 'X. (Clarinet in B♭ plays written C → B♭ sounds.)' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u20',
+        title: '20 · Orchestral voicing',
+        lessons: [
+          {
+            id: 'd20-harmonic-series',
+            title: 'The harmonic series as a voicing guide',
+            minutes: 8,
+            summary: 'Wide intervals low, close intervals high: why nature’s spacing sounds best.',
+            unlocks: ['voicing-doctor'],
+            cards: [
+              { key: 'series', front: 'First intervals of the harmonic series (from the bottom)?', back: 'Octave, 5th, 4th, major 3rd, minor 3rd… intervals shrink as you go up.' },
+              { key: 'rule', front: 'The voicing rule the harmonic series gives you?', back: 'Wide intervals (octaves, 5ths) in the bass, closer intervals (3rds, 2nds) higher up.' },
+              { key: 'lil', front: 'Low interval limit of a major 3rd?', back: 'Around B♭2 (lower note). Below that, a 3rd sounds muddy.' },
+            ],
+          },
+          {
+            id: 'd20-doubling',
+            title: 'Doubling & avoiding mud',
+            minutes: 7,
+            summary: 'What to double, octave doublings across sections, and how to keep a tutti clear.',
+            cards: [
+              { key: 'double', front: 'Safest notes to double in a big tutti chord?', back: 'Root (most), then 5th. Double the 3rd only in the upper register; never double the leading tone or a 7th low.' },
+              { key: 'octaves', front: 'Why double a melody in octaves?', back: 'More power and presence without thickening the harmony (e.g. violins + flutes 8va, cellos + horns).' },
+              { key: 'mud', front: 'Three quick fixes for a muddy orchestral mix?', back: 'Open up low intervals, remove instruments from the low-mid register (C3–C4), give each layer its own register.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u21',
+        title: '21 · Texture & layering',
+        lessons: [
+          {
+            id: 'd21-layers',
+            title: 'Melody, countermelody, pad, bass, ostinato',
+            minutes: 7,
+            summary: 'The five jobs in any orchestral texture, and how to give each its own space.',
+            cards: [
+              { key: 'jobs', front: 'Five layers of a typical cinematic texture?', back: 'Melody, countermelody, harmony/pad, bass, rhythm/ostinato.' },
+              { key: 'space', front: 'How do layers stay clear?', back: 'Different registers, different rhythms (long vs short) and different colours (sections).' },
+              { key: 'ostinato', front: 'What does an ostinato add?', back: 'Momentum and rhythm without needing new harmony; it can drive a loop for minutes.' },
+            ],
+          },
+          {
+            id: 'd21-sections',
+            title: 'Combining the sections',
+            minutes: 7,
+            summary: 'Strings, brass and winds alone and together: classic combinations that always work.',
+            cards: [
+              { key: 'strings', front: 'Why is the string section the “default” of the orchestra?', back: 'Wide range, endless sustain, every dynamic, every articulation; it never tires.' },
+              { key: 'horns-cellos', front: 'A classic warm melodic doubling?', back: 'Horns + cellos in unison (or violas + clarinets): rich, heroic, never shrill.' },
+              { key: 'brass-chord', front: 'How to voice a brass chorale?', back: 'Trombones and tuba low (wide), horns in the middle, trumpets on top; avoid close low intervals.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u22',
+        title: '22 · Counterpoint for composers',
+        lessons: [
+          {
+            id: 'd22-species',
+            title: 'First & second species',
+            minutes: 8,
+            summary: 'Two independent lines: consonances, contrary motion, passing tones.',
+            cards: [
+              { key: 'first', front: 'First species rules in one sentence?', back: 'Note against note, only consonances, no parallel 5ths/8ves, prefer contrary motion, begin and end on perfect consonances.' },
+              { key: 'consonances', front: 'Consonant intervals in counterpoint?', back: 'Unison, 3rds, 5th, 6ths, octave (the 4th counts as a dissonance above the bass).' },
+              { key: 'second', front: 'Second species: when may a dissonance appear?', back: 'On the weak beat, as a passing tone (approached and left by step in the same direction).' },
+            ],
+          },
+          {
+            id: 'd22-countermelody',
+            title: 'Writing countermelodies',
+            minutes: 7,
+            summary: 'A second melody that complements the first instead of competing with it.',
+            cards: [
+              { key: 'rhythm', front: 'Rhythmic rule of thumb for a countermelody?', back: 'Move when the melody holds, hold when the melody moves.' },
+              { key: 'contour', front: 'Contour rule for a countermelody?', back: 'Mostly contrary or oblique motion; peaks at different moments than the melody.' },
+              { key: 'register', front: 'Where to place the countermelody?', back: 'In a different register and colour: e.g. melody in violins, countermelody in horns or cellos.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u23',
+        title: '23 · Leitmotif development',
+        lessons: [
+          {
+            id: 'd23-motif-mode',
+            title: 'Mode change & reharmonization',
+            minutes: 7,
+            summary: 'Keep the motif’s identity; change its mood with mode and harmony.',
+            cards: [
+              { key: 'leit', front: 'What is a leitmotif?', back: 'A short musical idea tied to a character, place or idea, varied as the story changes.' },
+              { key: 'identity', front: 'What keeps a motif recognisable when transformed?', back: 'Its rhythm and contour. Change the pitches’ mode or harmony, keep those two.' },
+              { key: 'reharm', front: 'Reharmonization trick for a darker version?', back: 'Keep the melody, put borrowed (♭VI, iv) or chromatic-mediant chords under it.' },
+            ],
+          },
+          {
+            id: 'd23-motif-rhythm',
+            title: 'Augmentation, diminution, fragmentation',
+            minutes: 7,
+            summary: 'Stretch, compress and break a motif to build a whole score from one idea.',
+            unlocks: ['motif-ear'],
+            cards: [
+              { key: 'aug', front: 'Augmentation and its typical use?', back: 'Doubling the note values: grandeur, solemnity (finales, end credits, funerals).' },
+              { key: 'dim', front: 'Diminution and its typical use?', back: 'Halving the note values: urgency, playfulness, action.' },
+              { key: 'frag', front: 'Fragmentation?', back: 'Using only part of the motif (often its head), repeated and sequenced: development and build-ups.' },
+              { key: 'inv', front: 'Inversion vs retrograde?', back: 'Inversion: intervals upside down (same rhythm). Retrograde: the motif backwards (rhythm reversed too).' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u24',
+        title: '24 · Game-music form',
+        lessons: [
+          {
+            id: 'd24-loops-stingers',
+            title: 'Loops & stingers',
+            minutes: 7,
+            summary: 'Music that repeats without wearing out, and short cues that react to events.',
+            cards: [
+              { key: 'loop', front: 'Harmonic trick for a seamless loop?', back: 'End the loop on a chord that leads back to the first (V, ♭VII, IV…), not on a full cadence.' },
+              { key: 'tail', front: 'What breaks most loops audibly?', back: 'Reverb tails and sustained notes cut at the loop point; plan releases, or render the tail into the start.' },
+              { key: 'stinger', front: 'What is a stinger?', back: 'A short musical cue (1–5 s) triggered by an event: item found, enemy spotted, quest complete, death.' },
+            ],
+          },
+          {
+            id: 'd24-adaptive',
+            title: 'Vertical layering & horizontal resequencing',
+            minutes: 8,
+            summary: 'Two ways to make music react to gameplay, and how to write for them.',
+            cards: [
+              { key: 'vertical', front: 'Vertical layering?', back: 'Several synchronized stems of one cue; layers fade in and out with intensity (explore → tension → combat).' },
+              { key: 'horizontal', front: 'Horizontal resequencing?', back: 'Switching between different sections/cues at musical boundaries (bar or phrase), often through transition pieces.' },
+              { key: 'write', front: 'Writing rule for vertical layers?', back: 'Every combination of layers must sound complete: same tempo, key and harmony, each layer in its own register.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u25',
+        title: '25 · Cue analysis',
+        lessons: [
+          {
+            id: 'd25-analysis',
+            title: 'Analysing a cue',
+            minutes: 8,
+            summary: 'A repeatable template for learning from the scores you love.',
+            cards: [
+              { key: 'order', front: 'The order of a quick cue analysis?', back: 'Function & mood → tempo/meter → key/mode & harmony → motifs → layers & orchestration → form & loop → dynamics curve.' },
+              { key: 'harmony', front: 'Fast way to find the harmony of a cue?', back: 'Find the bass line first (it gives the roots), then the chord colours above it; check against the progression playground.' },
+              { key: 'steal', front: 'What do you take away from an analysis?', back: 'Techniques, not notes: a progression type, a voicing, a layering scheme, a form you can reuse in your own cue.' },
+            ],
+          },
+        ],
+      },
     ],
   },
 ];

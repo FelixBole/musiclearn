@@ -1,0 +1,44 @@
+Adaptive (interactive) music changes with gameplay. Almost every technique is one of two kinds, or a mix of both.
+
+## Vertical layering (re-orchestration)
+
+One piece of music is split into **synchronized stems** that always play together; the game fades layers in and out according to intensity.
+
+<Layers romans="i VI III VII" tonic="D" minor melody="D5:h. A4:q Bb4:h. D5:q C5:q A4:q F4:h E4:h G4:h" />
+
+Try the **Explore → Tension → Combat** presets: the music never stops or jumps, it just gets denser.
+
+How to write for it:
+
+- **Every combination** of layers must sound complete and balanced, including just one layer.
+- Same tempo, key and harmony for all layers; each layer in its **own register** (unit 21).
+- Put the **foundation** (pad or bass) in the lowest intensity layer; the most exciting material (percussion, melody, brass) in the top layers.
+- Avoid a layer that only makes sense with another one (e.g. a countermelody without its melody).
+
+## Horizontal resequencing
+
+The music is cut into **sections** (A, B, combat, victory…) and the game jumps between them at **musical boundaries** (the next bar or phrase), often via short **transition** pieces.
+
+- Write sections with **compatible keys and tempos**, or write transitions that modulate.
+- Mark **exit points** (bar lines, phrase ends) where a switch sounds natural.
+- Short **stingers** can cover a switch (a cymbal swell or a brass hit).
+
+## Mixing both
+
+Most modern game scores combine them: horizontal sections for big state changes (exploration → boss fight), vertical layers inside each section for intensity, and stingers for events. Middleware such as FMOD and Wwise (both integrate with Unity) is built around exactly these concepts: **tracks** for vertical layers, **transition markers and regions** for horizontal moves.
+
+<Quiz q="Vertical layering means…" options={["Switching between different pieces", "Fading synchronized stems of one piece in and out", "Changing the tempo"]} answer={1} />
+
+<Quiz q="What must every combination of vertical layers do?" options={["Be in a different key", "Sound complete on its own", "Include the melody"]} answer={1} />
+
+<Quiz q="Where should a horizontal switch happen?" options={["Anywhere, immediately", "At a musical boundary like a bar line or phrase end"]} answer={1} />
+
+<Composer title="Soulforge Tales planning sheet">
+For each area, decide:
+1. **States**: explore / tension / combat / victory.
+2. **Vertical layers** inside the main loop (pad, ostinato, melody, percussion).
+3. **Horizontal sections**: which states need different music rather than more layers?
+4. **Transitions and stingers** between them, all in compatible keys.
+
+Write that sheet first, and the composing goes much faster.
+</Composer>

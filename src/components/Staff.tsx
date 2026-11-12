@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   Accidental,
+  Dot,
   Formatter,
   GhostNote,
   Renderer,
@@ -22,6 +23,8 @@ export interface StaffItem {
   color?: string;
   /** For grand staff: force all keys to one staff. */
   staff?: 'upper' | 'lower';
+  /** draw a rest of `duration` */
+  rest?: boolean;
 }
 
 export interface StaffProps {
@@ -60,10 +63,16 @@ export function parseStaffNotes(notes: string, chord = false): StaffItem[] {
 
 export const INK = '#1d1a24';
 
-function buildNote(keys: string[], duration: string, clef: string, color?: string): StemmableNote {
+function buildNote(keys: string[], duration: string, clef: string, color?: string, rest = false): StemmableNote {
+  if (rest) {
+    const r = new StaveNote({ keys: [clef === 'bass' ? 'd/3' : 'b/4'], duration: `${duration}r`, clef });
+    if (duration.includes('d')) Dot.buildAndAttach([r], { all: true });
+    return r;
+  }
   if (keys.length === 0) return new GhostNote({ duration });
   const sorted = [...keys].sort((a, b) => toMidi(a) - toMidi(b));
   const n = new StaveNote({ keys: sorted.map(vexKey), duration, clef, autoStem: true });
+  if (duration.includes('d')) Dot.buildAndAttach([n], { all: true });
   const c = color ?? INK;
   n.setStyle({ fillStyle: c, strokeStyle: c });
   return n;
@@ -161,7 +170,7 @@ function renderStaff(
           const upper = (k: string) => (item.staff ? item.staff === 'upper' : toMidi(k) >= 60);
           keys = item.keys.filter((k) => (si === 0 ? upper(k) : !upper(k)));
         }
-        return buildNote(keys, item.duration ?? defaultDur, c, item.color);
+        return buildNote(keys, item.duration ?? defaultDur, c, item.color, item.rest && (!grand || si === 0));
       });
       const v = new Voice({ numBeats: 4, beatValue: 4 }).setMode(Voice.Mode.SOFT);
       v.addTickables(tickables);

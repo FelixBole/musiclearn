@@ -3,7 +3,9 @@ import { Link } from 'react-router';
 import { Keyboard, type KeyMark } from '../../components/Keyboard';
 import { Staff } from '../../components/Staff';
 import { useChordCapture, useHeldNotes } from '../../engine/input/hooks';
-import { playChord, ensureAudio } from '../../engine/audio';
+import { ensureAudio, playVoicings } from '../../engine/audio';
+import { ENSEMBLES, ENSEMBLE_IDS, type EnsembleId } from '../../engine/orchestra/instruments';
+import { ORCH_RULE_LABELS, checkOrchestralVoicing } from '../../engine/orchestra/voicingCheck';
 import { detectChord, intervalNameBetween, prettyNote, spellForChord } from '../../engine/theory';
 import { useMidiStatus } from '../hooks';
 
@@ -13,6 +15,7 @@ export function ToolsPage() {
   const midi = useMidiStatus();
   const [latched, setLatched] = useState<number[]>([]);
   const [flats, setFlats] = useState(false);
+  const [sound, setSound] = useState<EnsembleId>('piano');
 
   useChordCapture((notes) => setLatched(notes));
   // while MIDI keys are down show them live; otherwise show the last captured / tapped chord
@@ -36,6 +39,10 @@ export function ToolsPage() {
         <Link to="/tools/connect" className="tool-link">
           <b>🔀 Passing-chord explorer</b>
           <span>Pick two chords and hear every classic way to connect them, from secondary dominants to chromatic mediants.</span>
+        </Link>
+        <Link to="/tools/motif" className="tool-link">
+          <b>🧬 Motif transformer</b>
+          <span>Turn a leitmotif into its variations: other modes, inversion, augmentation, fragmentation, and reharmonized.</span>
         </Link>
       </nav>
       <section className="card">
@@ -90,21 +97,47 @@ export function ToolsPage() {
           <button type="button" className="btn ghost" onClick={() => setLatched([])} disabled={!latched.length}>
             Clear
           </button>
-          <button type="button" className="btn ghost" onClick={() => void playChord(sorted, 2)} disabled={!sorted.length}>
+          <button type="button" className="btn ghost" onClick={() => void playVoicings([sorted], sound, 2.4)} disabled={!sorted.length}>
             ▶ Play
           </button>
+          <select className="sound-select" value={sound} onChange={(e) => setSound(e.target.value as EnsembleId)} aria-label="Sound">
+            {ENSEMBLE_IDS.map((id) => (
+              <option key={id} value={id}>
+                {ENSEMBLES[id].name}
+              </option>
+            ))}
+          </select>
           <label className="toggle">
             <input type="checkbox" checked={flats} onChange={(e) => setFlats(e.target.checked)} /> Prefer flats
           </label>
         </div>
+        {sorted.length >= 3 && <VoicingReport notes={sorted} />}
       </section>
       <section className="card muted-card">
         <h2>Coming next</h2>
         <ul>
-          <li>Orchestral sounds (strings, brass, winds) for the playground</li>
-          <li>Motif transformer: modes, reharmonization, augmentation</li>
+          <li>Optional AI tutor for questions about your own music</li>
+          <li>Sight-singing with microphone pitch detection</li>
         </ul>
       </section>
+    </div>
+  );
+}
+
+/** Orchestral voicing check of the chord on the keyboard (mud, holes, spacing). */
+function VoicingReport({ notes }: { notes: number[] }) {
+  const issues = checkOrchestralVoicing(notes);
+  return (
+    <div className="voicing-report">
+      <h3>Orchestral voicing check</h3>
+      <ul className="chorale-issues">
+        {issues.length === 0 && <li className="ok">✓ Clear: wide intervals low, close intervals high</li>}
+        {issues.map((i, k) => (
+          <li key={k} className={`issue-${i.severity}`}>
+            {i.severity === 'error' ? '✗' : '⚠'} {ORCH_RULE_LABELS[i.rule]}: {i.message}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

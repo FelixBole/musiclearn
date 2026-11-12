@@ -2,7 +2,8 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { SatbStaff } from '../../components/SatbStaff';
-import { ensureAudio, playMelody, playProgression, stopPlayback } from '../../engine/audio';
+import { ensureAudio, playMelody, playVoicings, stopPlayback } from '../../engine/audio';
+import { ENSEMBLES, ENSEMBLE_IDS, ENSEMBLE_TRACKS, type EnsembleId } from '../../engine/orchestra/instruments';
 import { useChordCapture } from '../../engine/input/hooks';
 import { detectChord } from '../../engine/theory';
 import { realizeProgression, tokenize } from '../../engine/harmony/sequence';
@@ -53,6 +54,15 @@ export function PlaygroundPage() {
   const [loop, setLoop] = useState(false);
   const [showCheck, setShowCheck] = useState(true);
   const [palette, setPalette] = useState('dia');
+  const [sound, setSound] = useState<EnsembleId>(() => {
+    try {
+      const v = localStorage.getItem('playground:sound') as EnsembleId | null;
+      return v && v in ENSEMBLES ? v : 'piano';
+    } catch {
+      return 'piano';
+    }
+  });
+  const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(-1);
   const [fromMidi, setFromMidi] = useState(false);
   const [saveName, setSaveName] = useState('');
@@ -72,6 +82,13 @@ export function PlaygroundPage() {
     }
   }, [text, keyCode]);
   useEffect(() => () => stopPlayback(), []);
+  useEffect(() => {
+    try {
+      localStorage.setItem('playground:sound', sound);
+    } catch {
+      /* ignore */
+    }
+  }, [sound]);
 
   const key = keyFromCode(keyCode);
   const deferredText = useDeferredValue(text);
@@ -99,13 +116,22 @@ export function PlaygroundPage() {
     await ensureAudio();
     stopPlayback();
     const id = ++playId.current;
+    setLoading(sound !== 'piano');
     do {
-      await playProgression(
+      await playVoicings(
         r.voicings.map((v) => [...v]),
+        sound,
         chordSecs,
-        { onEvent: (i) => id === playId.current && setPlaying(i) },
+        {
+          onEvent: (i) => {
+            if (id !== playId.current) return;
+            setLoading(false);
+            setPlaying(i);
+          },
+        },
       );
     } while (loopRef.current && id === playId.current);
+    setLoading(false);
     if (id === playId.current) setPlaying(-1);
   }
   const loopRef = useRef(loop);
@@ -120,7 +146,7 @@ export function PlaygroundPage() {
     if (!r) return;
     const bytes = progressionToMidi(
       r.voicings.map((v) => [...v]),
-      { bpm, beatsPerChord: beats, name: text },
+      { bpm, beatsPerChord: beats, name: text, trackNames: ENSEMBLE_TRACKS[sound].names, programs: ENSEMBLE_TRACKS[sound].programs },
     );
     downloadMidi(bytes, midiFileName(`${keyCodeLabel(keyCode)} ${text}`));
   }
@@ -278,7 +304,18 @@ export function PlaygroundPage() {
             <input type="checkbox" checked={loop} onChange={(e) => setLoop(e.target.checked)} /> Loop
           </label>
         </div>
+        {loading && <p className="muted small center">Loading {ENSEMBLES[sound].name.toLowerCase()} samples…</p>}
         <div className="row">
+          <label className="field">
+            <span>Sound</span>
+            <select value={sound} onChange={(e) => setSound(e.target.value as EnsembleId)} aria-label="Sound">
+              {ENSEMBLE_IDS.map((id) => (
+                <option key={id} value={id}>
+                  {ENSEMBLES[id].name}
+                </option>
+              ))}
+            </select>
+          </label>
           <label className="field">
             <span>Tempo {bpm} BPM</span>
             <input type="range" min={40} max={160} step={2} value={bpm} onChange={(e) => setBpm(Number(e.target.value))} />

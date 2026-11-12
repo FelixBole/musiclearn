@@ -14,6 +14,7 @@ import { ReviewPage } from './pages/ReviewPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { PlaygroundPage } from './tools/PlaygroundPage';
 import { ConnectPage } from './tools/ConnectPage';
+import { MotifPage } from './tools/MotifPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { DbGate, ErrorBoundary } from './Resilience';
 
@@ -74,6 +75,7 @@ function Shell() {
           <Route path="/tools" element={<ToolsPage />} />
           <Route path="/tools/playground" element={<PlaygroundPage />} />
           <Route path="/tools/connect" element={<ConnectPage />} />
+          <Route path="/tools/motif" element={<MotifPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<TodayPage />} />
         </Routes>

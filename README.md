@@ -30,7 +30,10 @@ src/engine/theory     note/interval/chord/key helpers on top of tonal (tested)
 src/engine/harmony    Roman numerals (incl. N6, It/Fr/Ger+6, ct°7, sus), chord symbols, progression text
                       (key changes, pivots), voice-leading checker, SATB voicing engine, passing-chord explorer
 src/engine/midiExport.ts   Standard MIDI file export (one track per voice)
-src/app/tools         Progression playground, passing-chord explorer
+src/app/tools         Progression playground, passing-chord explorer, motif transformer
+src/engine/orchestra  Instrument data (ranges, transpositions), ensembles, orchestral voicing checker
+src/engine/motif.ts   Motif transformations + reharmonization · src/engine/counterpoint.ts species checker
+scripts/build-samples.mjs  Rebuilds public/samples/orchestra from VSCO 2 CE (node scripts/build-samples.mjs <cacheDir>)
 src/engine/audio      Tone.js sampled piano (Salamander, bundled in public/samples)
 src/engine/input      unified note bus: MIDI + on-screen keyboard (+ mic later)
 src/components        Staff (VexFlow), Keyboard, Play
@@ -51,7 +54,7 @@ src/progress, src/srs Dexie DB, settings, adaptive skills, FSRS scheduling
 - [x] M0–M2: scaffold, core engine, learning loop, Track A (Foundations), 8 drills, chord identifier tool
 - [x] M3: diatonic harmony (Track B, 13 lessons), voice-leading checker, SATB auto-voicing engine, 6 harmony drills (cadences, dictation, Roman-numeral analysis, error spotting, voice-the-next-chord, melody harmonization)
 - [x] M4: chromatic & modal (Track C, 15 lessons), 3 drills (chromatic chords by ear, chromatic spelling, modes by ear), progression playground, passing-chord explorer, MIDI export
-- [ ] M5: composer track (Track D), orchestral samples (VSCO2 CE), voicing/range drills, motif transformer
+- [x] M5: composer track (Track D, 14 lessons), orchestral samples (VSCO 2 CE, 12 instruments, ~2.9 MB, loaded on demand), 4 drills (instrument ranges, transposition, voicing doctor, motif transformations by ear), motif transformer, orchestral playback in playground/lessons/chord identifier
 - [ ] M6: optional Claude tutor, mic pitch detection, sync
 
 Credits: Salamander Grand Piano (Alexander Holm, CC-BY 3.0) · VexFlow · Tonal · Tone.js · ts-fsrs.

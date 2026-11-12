@@ -5,3 +5,4 @@ dev-dist
 .vscode/*
 !.vscode/extensions.json
 e2e/.results
+.sample-cache

@@ -342,3 +342,16 @@ input:not([type]), input[type='text'], textarea {
 .tool-link span { color: var(--muted); font-size: 0.88rem; }
 .bridge header .pill { align-self: flex-start; }
 a.play-btn { text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+
+/* ---------- M5: orchestra ---------- */
+.sound-select { width: auto; padding: 6px 8px; font-size: 0.85rem; border-radius: 999px; }
+.instrument-card header { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+.instrument-meta { display: flex; flex-direction: column; gap: 2px; font-size: 0.85rem; color: var(--muted); align-items: flex-start; }
+.registers { list-style: none; padding: 0; margin: 8px 0 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; line-height: 1.4; }
+.registers li { display: flex; gap: 8px; align-items: flex-start; }
+.play-btn.small { padding: 4px 10px; font-size: 0.8rem; flex: none; }
+.motif-list { display: flex; flex-direction: column; gap: 4px; }
+.motif-head { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+.chord-row { font-weight: 600; letter-spacing: 0.02em; } .motif-card header h3 { margin: 0; } .motif-card header p { margin: 4px 0 8px; }
+.layer-toggles { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; } .counterpoint .staff-paper + .staff-paper { margin-top: 4px; }
+.sound-select { flex: 0 0 auto; max-width: 150px; }

@@ -54,3 +54,22 @@ test('passing-chord explorer: options, insert back into the playground', async (
   await expect(page.getByLabel('Progression')).toHaveValue(/^I IV \S+\/V V I$/);
   expect(errors).toEqual([]);
 });
+
+test('motif transformer: variations, harmony, MIDI', async ({ page }) => {
+  const errors: string[] = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await page.goto('/#/tools/motif');
+  await expect(page.getByRole('heading', { name: 'Motif transformer' })).toBeVisible();
+  await expect(page.locator('.motif-card')).toHaveCount(11);
+  await expect(page.locator('.motif-card .staff-paper svg').first()).toBeVisible();
+  await expect(page.locator('.motif-card .chord-row').first()).not.toBeEmpty();
+  await page.getByRole('textbox', { name: 'Motif' }).fill('E4:q G4:8 Q');
+  await expect(page.locator('.parse-error')).toBeVisible();
+  await page.getByRole('textbox', { name: 'Motif' }).fill('A4:q C5:q E5:h D5:8 C5:8 B4:q');
+  await expect(page.locator('.parse-error')).toHaveCount(0);
+  const download = page.waitForEvent('download');
+  await page.locator('.motif-card').nth(2).getByRole('button', { name: /MIDI/ }).click();
+  expect((await download).suggestedFilename()).toMatch(/\.mid$/);
+  if (process.env.SHOTS_DIR) await page.screenshot({ path: `${process.env.SHOTS_DIR}/motif.png`, fullPage: true });
+  expect(errors).toEqual([]);
+});

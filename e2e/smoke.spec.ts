@@ -83,13 +83,15 @@ test('every lesson renders without errors', async ({ page }) => {
     'c12-secondary-dominants', 'c12-leading-tone-chords', 'c13-pivot', 'c13-direct', 'c14-mixture', 'c14-picardy',
     'c15-neapolitan', 'c15-aug-sixths', 'c16-mediants', 'c16-cinematic', 'c17-modes', 'c17-modal-harmony',
     'c18-extensions', 'c18-sus-quartal', 'c18-polychords',
+    'd19-strings', 'd19-winds-brass', 'd19-transposing', 'd20-harmonic-series', 'd20-doubling', 'd21-layers', 'd21-sections',
+    'd22-species', 'd22-countermelody', 'd23-motif-mode', 'd23-motif-rhythm', 'd24-loops-stingers', 'd24-adaptive', 'd25-analysis',
   ];
   for (const id of ids) {
     await page.goto(`/#/learn/${id}`);
     await expect(page.locator('.prose')).toBeVisible();
     await expect(page.locator('.prose')).not.toContainText('notation error');
     await expect(page.locator('.prose .error')).toHaveCount(0);
-    if (['a5-sevenths', 'b7-motion', 'c13-pivot', 'c17-modes', 'c18-polychords'].includes(id)) await shot(page, `lesson-${id}`);
+    if (['b7-motion', 'c17-modes', 'd19-strings', 'd20-harmonic-series', 'd22-species', 'd23-motif-mode', 'd24-adaptive'].includes(id)) await shot(page, `lesson-${id}`);
   }
   expect(errors).toEqual([]);
 });
@@ -102,6 +104,7 @@ test('every drill starts and renders a question at each level', async ({ page })
     ['chord-quality-ear', 6], ['scale-degree-ear', 4], ['chord-spelling', 5], ['sight-reading', 6],
     ['cadence-ear', 5], ['progression-ear', 5], ['roman-analysis', 4], ['error-spotting', 4], ['voice-next', 5], ['harmonize-melody', 4],
     ['chromatic-spelling', 5], ['chromatic-ear', 5], ['mode-ear', 5],
+    ['instrument-range', 5], ['transposition', 5], ['voicing-doctor', 4], ['motif-ear', 4],
   ];
   for (const [id, levels] of drills) {
     for (let l = 0; l < levels; l++) {

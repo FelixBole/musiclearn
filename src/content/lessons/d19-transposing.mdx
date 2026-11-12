@@ -1,0 +1,41 @@
+Open a horn part and you'll see a G where the orchestra plays a C. Several instruments are **transposing**: the note written in their part is not the note that sounds. It's a historical convenience, so a player can switch between instruments of the same family with the same fingerings.
+
+## The rule
+
+An instrument **"in X"** sounds **X** when it plays a written **C**.
+
+- **Clarinet in B♭**: written C → sounds B♭ (a major 2nd lower). To get concert C, write **D**.
+- **Trumpet in B♭**: the same.
+- **Horn in F**: written C → sounds F below (a perfect 5th lower). To get concert C, write **G**.
+- **Clarinet in A**: sounds a minor 3rd lower. To get concert C, write **E♭**.
+
+So the part is always written **higher** than the sound, by the interval between C and the instrument's key.
+
+| Instrument | Sounds… | Concert C is written as |
+|---|---|---|
+| Clarinet in B♭, trumpet in B♭ | a major 2nd lower | D |
+| Horn in F, English horn | a perfect 5th lower | G |
+| Clarinet in A | a minor 3rd lower | E♭ |
+| Alto sax (in E♭) | a major 6th lower | A |
+| Piccolo | an octave **higher** | C an octave lower |
+| Double bass | an octave lower | C an octave higher |
+
+Here's concert C5 written for B♭ clarinet (D5) and for horn in F (G5):
+
+<Example notes="C5 D5 G5" label="Sounding C5 · clarinet part D5 · horn part G5" />
+
+## Key signatures transpose too
+
+A B♭ clarinet part for a piece in C major is written in **D major** (two sharps). A horn part in F for C major would be in G major. In practice, many modern horn parts are written without key signature, with accidentals.
+
+<Callout title="In your DAW">
+Write and think in **concert pitch** (most DAWs and notation programs have a "concert pitch" view). Transposition only matters when you print parts for real players, and the notation software does it for you. But you must be able to **read** a transposed part, and know where the instrument's range lies in written terms.
+</Callout>
+
+<Quiz q="A B♭ trumpet must sound F4. What do you write?" options={["E♭4", "G4", "F4", "C5"]} answer={1} explain="Written a major 2nd higher than the sound: F → G." />
+
+<Quiz q="A horn part in F shows C5. What sounds?" options={["F4", "C5", "G5", "F5"]} answer={0} explain="The horn in F sounds a perfect 5th lower: C5 → F4." />
+
+<Quiz q="Which instrument sounds an octave higher than written?" options={["Double bass", "Piccolo", "Horn"]} answer={1} />
+
+<Try drill="transposition" level={0}>Translate concert pitch into B♭ parts.</Try>

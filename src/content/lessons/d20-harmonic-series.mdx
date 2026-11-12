@@ -1,0 +1,53 @@
+Why does a chord on a full orchestra sometimes sound glorious and sometimes like mud, with the *same notes*? The answer is **spacing**, and nature gives us the model: the **harmonic series**.
+
+## The harmonic series
+
+Every pitched note contains a stack of overtones above its fundamental. On C2:
+
+<Example notes="C2 C3 G3 C4 E4 G4 Bb4 C5" clef="grand" label="C2 and its first overtones" />
+
+Look at the intervals from the bottom: **octave, 5th, 4th, major 3rd, minor 3rd, minor 3rd, major 2nd…** They get **smaller as you go up**. Our ears are used to this shape, so chords spaced the same way sound full, resonant and clear.
+
+## The rule
+
+> Wide intervals at the bottom, close intervals at the top.
+
+- In the **bass register**: octaves and 5ths only.
+- In the **middle**: 4ths, 5ths, 6ths, 3rds.
+- At the **top**: 3rds and 2nds are fine.
+
+Compare three voicings of the same C major chord (the checker below each one explains what it finds):
+
+<OrchVoicing notes="C2,C3,G3,E4,G4,C5" labels="Harmonic-series spacing" check />
+
+<OrchVoicing notes="C2,E2,G2,C3,E3" labels="Close position, low" check />
+
+<OrchVoicing notes="C3,E3,G3,G4,E5" labels="Upside-down spacing" check />
+
+## Low interval limits
+
+Every interval has a pitch below which it turns muddy (the overtones of the two notes clash). Arrangers use these approximate limits for the **lower** note:
+
+| Interval | Lowest clear position |
+|---|---|
+| minor 2nd | E3 |
+| major 2nd | E♭3 |
+| minor 3rd | C3 |
+| major 3rd | B♭2 |
+| perfect 4th | A2 |
+| perfect 5th | B♭1 |
+| 6ths and 7ths | F2 |
+
+So a C major triad in close position is fine from about C3 up, but below that, open it up.
+
+<Quiz q="According to the harmonic series, which interval belongs at the very bottom of a voicing?" options={["Major 3rd", "Octave or 5th", "Minor 2nd"]} answer={1} />
+
+<Quiz q="Is a major 3rd from C2 to E2 clear?" options={["Yes", "No, it is far below its low interval limit (about B♭2)"]} answer={1} />
+
+<Quiz q="What's wrong with C3 E3 G3 – G4 – E5?" options={["Nothing", "It is spaced upside down: close low, wide high", "It has no 3rd"]} answer={1} />
+
+<Composer title="Fixing mud in the DAW">
+When an orchestral mockup sounds muddy, don't reach for the EQ first: look at the **voicing**. Usually the culprit is a 3rd or a cluster of notes between C2 and C3 (often in low brass, low strings or a piano pad doubling everything). Move those notes up an octave, or leave only roots and 5ths down there. The mix clears up immediately. The [chord identifier](#/tools) runs this same check on whatever you play on your MIDI keyboard.
+</Composer>
+
+<Try drill="voicing-doctor" level={0}>Spot muddy and clear voicings.</Try>
