@@ -236,6 +236,23 @@ select { background: var(--bg-2); color: var(--fg); border: 1px solid var(--line
 .play-btn.busy .play-icon { animation: pulse 0.8s infinite alternate; }
 @keyframes pulse { from { opacity: 0.4; } to { opacity: 1; } }
 
+/* ---------- harmony drills ---------- */
+.slot-picker { display: flex; flex-direction: column; gap: 10px; }
+.slots { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+.slot { min-width: 54px; min-height: 48px; padding: 6px 8px; border-radius: 10px; border: 2px solid var(--line); background: var(--card); color: var(--fg); font-size: 1.05rem; font-weight: 700; cursor: pointer; }
+.slot.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(224, 168, 79, 0.25); }
+.slot.fixed { opacity: 0.6; cursor: default; }
+.slot.ok { border-color: var(--ok); background: var(--ok-bg); }
+.slot.bad { border-color: var(--bad); background: var(--bad-bg); }
+.roman-pad { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); gap: 6px; }
+.roman-pad .choice { min-height: 46px; }
+.choice.picked { border-color: var(--accent); }
+.hint.warn { color: var(--accent-2); }
+.chorale-issues { list-style: none; padding: 0; margin: 6px 0 0; font-size: 0.88rem; }
+.chorale-issues li.issue-error { color: #f1a0a4; }
+.chorale-issues li.issue-warning { color: var(--accent-2); }
+.chorale-issues li.ok { color: var(--ok); }
+
 /* ---------- practice ---------- */
 .ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
 .ex-card { display: flex; flex-direction: column; gap: 6px; padding: 14px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); color: var(--fg); text-decoration: none; }

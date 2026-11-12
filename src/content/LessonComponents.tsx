@@ -1,10 +1,16 @@
-import { createContext, useContext, useEffect, useId, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useId, useMemo, useState, type ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Play } from '../components/Play';
 import { Staff } from '../components/Staff';
 import { Keyboard, type KeyMark } from '../components/Keyboard';
 import { toMidi } from '../engine/theory';
 import { getExercise } from '../exercises/registry';
+import { SatbStaff } from '../components/SatbStaff';
+import { playMelody, playProgression } from '../engine/audio';
+import { parseRoman, prettyRoman, type KeyCtx } from '../engine/harmony/roman';
+import { realize, type Realization } from '../engine/harmony/voicing';
+import { RULE_LABELS, checkProgression, type Issue, type Satb } from '../engine/harmony/voiceleading';
+import { keySigFor } from '../exercises/harmonyLogic';
 
 /* Lesson context: quizzes register so the lesson knows when all are answered. */
 interface LessonCtx {
@@ -145,4 +151,87 @@ export function Example({ notes, clef, keySig, chord, mode, label }: { notes: st
   );
 }
 
-export const lessonComponents = { Play, Staff, Quiz, Callout, Composer, KeyboardDemo, Try, Example };
+/* ---------------- Four-part harmony widgets ---------------- */
+
+function useKey(tonic: string, minor?: boolean): KeyCtx {
+  return { tonic, minor: !!minor };
+}
+
+/**
+ * <Progression romans="I IV V7 I" tonic="C" /> — auto-voiced in four parts (SATB),
+ * notation with Roman numerals + playback (full, bass line, soprano).
+ */
+export function Progression({ romans, tonic = 'C', minor, label, tempo = 1.0 }: { romans: string; tonic?: string; minor?: boolean; label?: string; tempo?: number }) {
+  const key = useKey(tonic, minor);
+  const symbols = romans.trim().split(/\s+/);
+  // the voicing search is not free: compute once per progression, not on every lesson re-render
+  const { r, error } = useMemo(() => {
+    try {
+      return { r: realize(romans.trim().split(/\s+/), { tonic, minor: !!minor }) as Realization, error: null };
+    } catch (e) {
+      return { r: null, error: (e as Error).message };
+    }
+  }, [romans, tonic, minor]);
+  if (!r) return <p className="error">⚠ {error}</p>;
+  const voicings = r.voicings;
+  return (
+    <figure className="example">
+      <SatbStaff chords={r.names} labels={symbols.map(prettyRoman)} keySig={keySigFor(key)} />
+      <figcaption>
+        <button type="button" className="play-btn" onClick={() => void playProgression(voicings.map((v) => [...v]), tempo)}>
+          ▶ {label ?? 'Listen'}
+        </button>
+        <button type="button" className="play-btn" onClick={() => void playMelody(voicings.map((v) => v[0]), tempo * 0.8)}>
+          Bass
+        </button>
+        <button type="button" className="play-btn" onClick={() => void playMelody(voicings.map((v) => v[3]), tempo * 0.8)}>
+          Soprano
+        </button>
+      </figcaption>
+    </figure>
+  );
+}
+
+/**
+ * <Chorale notes="C3,G3,E4,C5 D3,A3,F4,D5" romans="I ii" tonic="C" check />
+ * Explicit voicings (bass→soprano per chord). With `check`, runs the voice-leading checker
+ * and highlights problems — ideal for showing "what not to do".
+ */
+export function Chorale({ notes, romans, tonic = 'C', minor, check, label }: { notes: string; romans?: string; tonic?: string; minor?: boolean; check?: boolean; label?: string }) {
+  const key = useKey(tonic, minor);
+  const names = notes.trim().split(/\s+/).map((c) => c.split(','));
+  const symbols = romans?.trim().split(/\s+/);
+  const voicings = names.map((c) => c.map(toMidi) as Satb);
+  let issues: Issue[] = [];
+  if (check) {
+    const chords = symbols?.map((s) => parseRoman(s, key));
+    issues = checkProgression(voicings, chords, key);
+  }
+  const colors: Record<string, string> = {};
+  for (const i of issues) {
+    const pair = /parallel|direct|overlap|unresolved|leap|melodic/.test(i.rule);
+    for (const ci of pair ? [i.at - 1, i.at] : [i.at]) for (const v of i.voices) colors[`${ci}:${v}`] = i.severity === 'error' ? '#c0393f' : '#c47f12';
+  }
+  return (
+    <figure className="example">
+      <SatbStaff chords={names} labels={symbols?.map(prettyRoman)} keySig={keySigFor(key)} colors={colors} />
+      <figcaption>
+        <button type="button" className="play-btn" onClick={() => void playProgression(voicings.map((v) => [...v]), 1.1)}>
+          ▶ {label ?? 'Listen'}
+        </button>
+      </figcaption>
+      {check && (
+        <ul className="chorale-issues">
+          {issues.length === 0 && <li className="ok">✓ No voice-leading problems</li>}
+          {issues.map((i, k) => (
+            <li key={k} className={`issue-${i.severity}`}>
+              {i.severity === 'error' ? '✗' : '⚠'} {RULE_LABELS[i.rule]}: {i.message}
+            </li>
+          ))}
+        </ul>
+      )}
+    </figure>
+  );
+}
+
+export const lessonComponents = { Play, Staff, Quiz, Callout, Composer, KeyboardDemo, Try, Example, Progression, Chorale };

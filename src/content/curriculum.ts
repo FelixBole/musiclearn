@@ -283,12 +283,200 @@ export const TRACKS: TrackDef[] = [
     title: 'Diatonic harmony',
     subtitle: 'Function, cadences, voice leading — how chords move.',
     units: [
-      { id: 'u6', title: '6 · Function & cadences', lessons: [], planned: ['Tonic, predominant, dominant', 'Cadences: authentic, half, plagal, deceptive'] },
-      { id: 'u7', title: '7 · Four-part voice leading', lessons: [], planned: ['SATB ranges & spacing', 'Doubling rules', 'Parallels & smooth motion', 'Voice leading for orchestral sections'] },
-      { id: 'u8', title: '8 · Inversions in use', lessons: [], planned: ['First inversion in practice', 'The three 6/4 chords'] },
-      { id: 'u9', title: '9 · Non-chord tones', lessons: [], planned: ['Passing & neighbor tones', 'Suspensions & appoggiaturas', 'Anticipations & pedal points'] },
-      { id: 'u10', title: '10 · Diatonic sequences', lessons: [], planned: ['Descending fifths', 'Ascending 5–6', 'The Pachelbel sequence'] },
-      { id: 'u11', title: '11 · Harmonizing melodies', lessons: [], planned: ['Choosing chords for a melody', 'Harmonic rhythm'] },
+      {
+        id: 'u6',
+        title: '6 · Function & cadences',
+        lessons: [
+          {
+            id: 'b6-function',
+            title: 'Tonic, predominant, dominant',
+            minutes: 7,
+            summary: 'Why some progressions feel inevitable: the T → PD → D → T cycle.',
+            unlocks: ['progression-ear'],
+            cards: [
+              { key: 'families', front: 'The three chord families in a major key?', back: 'Tonic: I (vi, iii) · Predominant: IV, ii · Dominant: V, vii°' },
+              { key: 'cycle', front: 'The basic functional cycle?', back: 'T → PD → D → T (e.g. I – IV – V – I, I – ii – V – I).' },
+              { key: 'retrogression', front: 'What is a retrogression?', back: 'Moving “backwards” in the cycle, e.g. V → IV. Common in rock and film music, avoided in classical style.' },
+              { key: 'strong-root', front: 'Strongest root motions?', back: 'Down a 5th (V–I, ii–V), down a 3rd (I–vi), up a step (IV–V).' },
+              { key: 'ii-sound', front: 'Which chord is the predominant here?', back: 'ii (D minor) — I – ii – V – I.', play: { notes: 'C3,G3,E4,C5 D3,A3,F4,D5 G2,B3,D4,G4 C3,C4,E4,C5', mode: 'progression' } },
+            ],
+          },
+          {
+            id: 'b6-cadences',
+            title: 'Cadences',
+            minutes: 7,
+            summary: 'Musical punctuation: full stops, commas, questions and surprises.',
+            unlocks: ['cadence-ear'],
+            cards: [
+              { key: 'pac', front: 'Perfect authentic cadence (PAC)?', back: 'V → I, both root position, soprano ends on the tonic. The strongest ending.' },
+              { key: 'iac', front: 'Imperfect authentic cadence (IAC)?', back: 'V → I but weaker: soprano on 3 or 5, or an inverted chord.' },
+              { key: 'hc', front: 'Half cadence (HC)?', back: 'Ends on V — sounds open, like a question.' },
+              { key: 'plagal', front: 'Plagal cadence?', back: 'IV → I, the “Amen” cadence.' },
+              { key: 'deceptive', front: 'Deceptive cadence?', back: 'V → vi: the ear expects I and gets the relative minor.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u7',
+        title: '7 · Four-part voice leading',
+        lessons: [
+          {
+            id: 'b7-satb',
+            title: 'SATB: ranges, spacing & doubling',
+            minutes: 8,
+            summary: 'Four voices, one chord: where each voice lives and which note to double.',
+            unlocks: ['roman-analysis'],
+            cards: [
+              { key: 'ranges', front: 'SATB ranges (approx.)?', back: 'Soprano C4–G5 · Alto G3–D5 · Tenor C3–G4 · Bass E2–C4' },
+              { key: 'spacing', front: 'Spacing rule for upper voices?', back: 'No more than an octave between soprano–alto and alto–tenor. The tenor–bass gap can be wider.' },
+              { key: 'doubling', front: 'Default doubling in a root-position triad?', back: 'Double the root. Never double the leading tone (or a chordal 7th).' },
+              { key: 'complete', front: 'Which chord tone may be left out?', back: 'Only the 5th. The 3rd defines major/minor and must be present.' },
+            ],
+          },
+          {
+            id: 'b7-motion',
+            title: 'Motion & parallels',
+            minutes: 7,
+            summary: 'Contrary motion, and why parallel 5ths and octaves were banned.',
+            unlocks: ['error-spotting'],
+            cards: [
+              { key: 'motion-types', front: 'Four types of motion between two voices?', back: 'Parallel, similar, contrary, oblique (one voice holds).' },
+              { key: 'why-parallels', front: 'Why avoid parallel 5ths and octaves (in part writing)?', back: 'The two voices fuse into one and lose their independence — four parts sound like three.' },
+              { key: 'hidden', front: 'Direct (hidden) 5ths/octaves?', back: 'Outer voices move in the same direction INTO a 5th/octave with a leap in the soprano. Avoid in outer voices.' },
+              { key: 'contrary', front: 'Best motion between bass and soprano?', back: 'Contrary motion — it keeps the outer voices independent and the texture clear.' },
+            ],
+          },
+          {
+            id: 'b7-connecting',
+            title: 'Connecting chords smoothly',
+            minutes: 8,
+            summary: 'Common tones, shortest paths and tendency tones.',
+            unlocks: ['voice-next'],
+            cards: [
+              { key: 'common-tone', front: 'First rule of smooth connection?', back: 'Keep common tones in the same voice; move the other voices to the nearest chord tone.' },
+              { key: 'lt-res', front: 'How does the leading tone resolve in V → I?', back: 'Up a half step to the tonic (required in the soprano; an inner voice may drop to the 5th).' },
+              { key: 'seventh-res', front: 'How does a chordal 7th resolve?', back: 'Down by step (F → E in G7 → C).' },
+              { key: 'iv-v', front: 'IV → V has no common tones. How do the upper voices move?', back: 'In contrary motion to the bass (bass up, upper voices down to the nearest chord tones).' },
+            ],
+          },
+          {
+            id: 'b7-orchestra',
+            title: 'Voice leading in the orchestra',
+            minutes: 8,
+            summary: 'From SATB to strings and brass — and when breaking the rules is the point.',
+            cards: [
+              { key: 'strings-satb', front: 'A string section as SATB?', back: 'Violin I = soprano, Violin II = alto, Viola = tenor, Cello (+ bass an octave lower) = bass.' },
+              { key: 'doubling-vs-parallels', front: 'Is doubling a line in octaves a “parallel octaves” error?', back: 'No — orchestral doubling reinforces ONE line. Parallels matter between independent voices.' },
+              { key: 'planing', front: 'What is planing (parallel chords)?', back: 'Moving a whole chord shape in parallel — deliberate parallel 5ths/triads for medieval, epic or impressionist colour.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u8',
+        title: '8 · Inversions in use',
+        lessons: [
+          {
+            id: 'b8-first-inversion',
+            title: 'First inversion in practice',
+            minutes: 6,
+            summary: 'I6, V6, ii6: lighter chords and singing bass lines.',
+            unlocks: ['progression-ear'],
+            cards: [
+              { key: 'ii6', front: 'Why is ii6 so common before V?', back: 'Its bass (scale degree 4) steps up to 5 — a strong, smooth predominant.' },
+              { key: 'v6', front: 'V6 → I: bass motion?', back: 'Leading tone in the bass rises to the tonic (7 → 1).' },
+              { key: 'first-inv-weight', front: 'How does a first-inversion chord feel compared to root position?', back: 'Lighter, less final — good mid-phrase, not for the final chord.' },
+            ],
+          },
+          {
+            id: 'b8-six-four',
+            title: 'The three 6/4 chords',
+            minutes: 7,
+            summary: 'Cadential, passing and pedal 6/4 — the only safe ways to use second inversion.',
+            cards: [
+              { key: 'cad64', front: 'Cadential 6/4?', back: 'I64 → V (same bass note). The 6 and 4 above the bass fall to 5 and 3: really a decorated V.' },
+              { key: 'pass64', front: 'Passing 6/4?', back: 'Bass passes by step between two positions of one chord: I – V64 – I6.' },
+              { key: 'pedal64', front: 'Pedal (neighbour) 6/4?', back: 'Bass holds while upper voices move: I – IV64 – I.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u9',
+        title: '9 · Non-chord tones',
+        lessons: [
+          {
+            id: 'b9-passing-neighbor',
+            title: 'Passing & neighbour tones',
+            minutes: 6,
+            summary: 'The notes between the chords that make lines sing.',
+            cards: [
+              { key: 'passing', front: 'Passing tone?', back: 'A non-chord tone that connects two chord tones by step in the same direction.' },
+              { key: 'neighbor', front: 'Neighbour tone?', back: 'Steps away from a chord tone and back to the same note (upper or lower neighbour).' },
+              { key: 'accented', front: 'Accented vs unaccented non-chord tone?', back: 'Accented falls on the beat (more tension, more expressive); unaccented on the weak part.' },
+            ],
+          },
+          {
+            id: 'b9-suspensions',
+            title: 'Suspensions, appoggiaturas & pedals',
+            minutes: 7,
+            summary: 'Delay, lean, sustain — the expressive dissonances of film music.',
+            cards: [
+              { key: 'suspension', front: 'Three stages of a suspension?', back: 'Preparation (consonant) → suspension (held into the next chord, dissonant) → resolution (down by step).' },
+              { key: 'sus-types', front: 'Common suspensions (above the bass)?', back: '4–3, 7–6, 9–8 (and 2–3 in the bass).' },
+              { key: 'appoggiatura', front: 'Appoggiatura?', back: 'Accented non-chord tone approached by LEAP, resolved by step — the “sigh”.' },
+              { key: 'pedal', front: 'Pedal point?', back: 'A held (usually bass) note while harmonies change above it — tonic or dominant pedals build tension.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u10',
+        title: '10 · Diatonic sequences',
+        lessons: [
+          {
+            id: 'b10-sequences',
+            title: 'Sequences: fifths, 5–6 and Pachelbel',
+            minutes: 8,
+            summary: 'Repeating patterns that carry harmony forward on autopilot.',
+            cards: [
+              { key: 'desc5', front: 'The descending-fifths sequence in major?', back: 'I – IV – vii° – iii – vi – ii – V – I (roots fall by 5ths).' },
+              { key: 'pachelbel', front: 'Pachelbel progression?', back: 'I – V – vi – iii – IV – I – IV – V (down a 4th, up a 2nd, repeated).' },
+              { key: 'asc56', front: 'Ascending 5–6 sequence?', back: 'Above a rising bass, 5ths alternate with 6ths: I – vi6 – ii – vii°6 – iii …, climbing step by step.' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'u11',
+        title: '11 · Harmonizing melodies',
+        lessons: [
+          {
+            id: 'b11-harmonizing',
+            title: 'Harmonizing a melody',
+            minutes: 8,
+            summary: 'A method: cadence first, then chords that contain each note, in functional order.',
+            unlocks: ['harmonize-melody'],
+            cards: [
+              { key: 'method', front: 'Order of work when harmonizing?', back: '1. Cadence  2. Possible chords per note  3. Functional path T→PD→D  4. Bass line in contrary motion  5. Inner voices.' },
+              { key: 'note-chords', front: 'Which diatonic triads contain scale degree 1?', back: 'I, IV and vi.' },
+              { key: 'note-chords-2', front: 'Which diatonic triads contain scale degree 2?', back: 'ii, V and vii°.' },
+            ],
+          },
+          {
+            id: 'b11-harmonic-rhythm',
+            title: 'Harmonic rhythm',
+            minutes: 6,
+            summary: 'How often chords change — and how it shapes energy.',
+            cards: [
+              { key: 'hr', front: 'What is harmonic rhythm?', back: 'The rate at which chords change, independent of the melody’s rhythm.' },
+              { key: 'hr-cadence', front: 'Typical harmonic rhythm toward a cadence?', back: 'It speeds up — e.g. one chord per bar, then two or more in the cadence bar.' },
+              { key: 'hr-games', front: 'Exploration vs combat music: harmonic rhythm?', back: 'Exploration: slow (long pads, pedals). Combat: faster changes or driving ostinatos over shifting harmony.' },
+            ],
+          },
+        ],
+      },
     ],
   },
   {

@@ -1,0 +1,41 @@
+You have a melody — a leitmotif, a hummed idea — and you need chords. Instead of trying chords at random, use a method.
+
+## Step 1: Plan the cadence
+
+Decide how the phrase ends. For a full stop: the last two melody notes over **V → I** (melody often 2 → 1 or 7 → 1).
+
+## Step 2: List candidate chords for each note
+
+Each scale degree belongs to three diatonic triads:
+
+| Melody note (degree) | Chords containing it |
+|---|---|
+| 1 | I, IV, vi |
+| 2 | ii, V, vii° |
+| 3 | I, iii, vi |
+| 4 | ii, IV, vii° |
+| 5 | I, iii, V |
+| 6 | ii, IV, vi |
+| 7 | iii, V, vii° |
+
+## Step 3: Choose a functional path
+
+From the candidates, pick a path that follows **T → PD → D → T**, avoiding retrogressions (V → IV). Prefer root motion by 5th, and change chord on strong beats.
+
+## Step 4: Shape the bass
+
+Give the bass its own line — often **contrary motion** to the melody — using inversions where a step is nicer than a leap.
+
+<Chorale notes="C3,C4,G4,E5 G2,B3,G4,D5 C3,C4,E4,C5" romans="I V I" check label="Melody E – D – C (3 – 2 – 1) over I – V – I" />
+
+<Progression romans="I vi IV ii V I" label="A longer phrase following T → PD → D → T" />
+
+<Quiz q="The melody note is scale degree 2. Which chord is NOT a candidate?" options={["ii", "V", "IV", "vii°"]} answer={2} explain="IV (F A C in C major) doesn't contain D (degree 2)." />
+
+<Quiz q="Final two melody notes are 2 → 1. Best cadence?" options={["IV → I", "V → I", "ii → I"]} answer={1} explain="Degree 2 lives in V, degree 1 in I: an authentic cadence." />
+
+<Composer title="Harmonizing your leitmotifs">
+A strong motif can be re-harmonized to change its meaning: the same melody over I – V – I (heroic), over vi – IV – V (bittersweet), or later over borrowed and chromatic chords (Track C) for tragedy or menace. Use this method to find the **plain diatonic** version first — then you'll have something deliberate to transform.
+</Composer>
+
+<Try drill="harmonize-melody" level={0}>Harmonize short melodies with I, IV and V.</Try>

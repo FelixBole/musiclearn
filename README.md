@@ -27,6 +27,7 @@ Progress is stored locally (IndexedDB) on each device. Move it between PC and ph
 ## Project layout
 ```
 src/engine/theory     note/interval/chord/key helpers on top of tonal (tested)
+src/engine/harmony    Roman numerals, voice-leading checker, SATB voicing engine, progression grammar
 src/engine/audio      Tone.js sampled piano (Salamander, bundled in public/samples)
 src/engine/input      unified note bus: MIDI + on-screen keyboard (+ mic later)
 src/components        Staff (VexFlow), Keyboard, Play
@@ -37,7 +38,7 @@ src/progress, src/srs Dexie DB, settings, adaptive skills, FSRS scheduling
 
 ### Adding a lesson
 1. Add a `LessonDef` (id, title, cards, unlocks) to `src/content/curriculum.ts`.
-2. Create `src/content/lessons/<id>.mdx`. You can use `<Example>`, `<Staff>`, `<Play>`, `<KeyboardDemo>`, `<Quiz>`, `<Callout>`, `<Composer>` and `<Try drill="…">`.
+2. Create `src/content/lessons/<id>.mdx`. You can use `<Example>`, `<Staff>`, `<Play>`, `<KeyboardDemo>`, `<Quiz>`, `<Callout>`, `<Composer>`, `<Try drill="…">`, `<Progression romans="I IV V I" tonic="C">` (auto-voiced SATB) and `<Chorale notes="C3,G3,E4,C5 …" romans="I …" check>` (explicit voicings, with the checker highlighting problems). `npm test` verifies every `<Progression>` voices without errors.
 
 ### Adding a drill
 1. Write `generate()` and a `check…()` in `src/exercises/logic.ts`, with tests in `logic.test.ts`.
@@ -45,7 +46,7 @@ src/progress, src/srs Dexie DB, settings, adaptive skills, FSRS scheduling
 
 ## Roadmap
 - [x] M0–M2: scaffold, core engine, learning loop, Track A (Foundations), 8 drills, chord identifier tool
-- [ ] M3: diatonic harmony (Track B), voice-leading checker, cadence/progression dictation, 4-part harmonization
+- [x] M3: diatonic harmony (Track B, 13 lessons), voice-leading checker, SATB auto-voicing engine, 6 harmony drills (cadences, dictation, Roman-numeral analysis, error spotting, voice-the-next-chord, melody harmonization)
 - [ ] M4: chromatic & modal (Track C), progression playground, passing-chord explorer, MIDI export
 - [ ] M5: composer track (Track D), orchestral samples (VSCO2 CE), voicing/range drills, motif transformer
 - [ ] M6: optional Claude tutor, mic pitch detection, sync

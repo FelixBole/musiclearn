@@ -42,7 +42,7 @@ export interface StaffProps {
 }
 
 let fontsReady: Promise<unknown> | null = null;
-function loadFonts() {
+export function loadFonts() {
   if (!fontsReady) {
     fontsReady =
       typeof document !== 'undefined' && document.fonts
@@ -58,7 +58,7 @@ export function parseStaffNotes(notes: string, chord = false): StaffItem[] {
   return groups.map((g) => (g === '_' ? { keys: [] } : { keys: g.split(',') }));
 }
 
-const INK = '#1d1a24';
+export const INK = '#1d1a24';
 
 function buildNote(keys: string[], duration: string, clef: string, color?: string): StemmableNote {
   if (keys.length === 0) return new GhostNote({ duration });

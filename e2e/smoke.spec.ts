@@ -78,12 +78,15 @@ test('every lesson renders without errors', async ({ page }) => {
     'a1-staff-treble', 'a1-bass-grand', 'a1-accidentals', 'a1-c-clefs', 'a2-note-values', 'a2-meter',
     'a3-interval-size', 'a3-interval-quality', 'a4-major-scale', 'a4-key-signatures', 'a4-minor',
     'a5-triads', 'a5-diatonic', 'a5-inversions', 'a5-sevenths',
+    'b6-function', 'b6-cadences', 'b7-satb', 'b7-motion', 'b7-connecting', 'b7-orchestra', 'b8-first-inversion',
+    'b8-six-four', 'b9-passing-neighbor', 'b9-suspensions', 'b10-sequences', 'b11-harmonizing', 'b11-harmonic-rhythm',
   ];
   for (const id of ids) {
     await page.goto(`/#/learn/${id}`);
     await expect(page.locator('.prose')).toBeVisible();
     await expect(page.locator('.prose')).not.toContainText('notation error');
-    if (id === 'a5-sevenths' || id === 'a1-c-clefs') await shot(page, `lesson-${id}`);
+    await expect(page.locator('.prose .error')).toHaveCount(0);
+    if (['a5-sevenths', 'b7-motion', 'b8-six-four'].includes(id)) await shot(page, `lesson-${id}`);
   }
   expect(errors).toEqual([]);
 });
@@ -94,6 +97,7 @@ test('every drill starts and renders a question at each level', async ({ page })
   const drills: [string, number][] = [
     ['note-reading', 7], ['key-signatures', 5], ['interval-reading', 4], ['interval-ear', 6],
     ['chord-quality-ear', 6], ['scale-degree-ear', 4], ['chord-spelling', 5], ['sight-reading', 6],
+    ['cadence-ear', 5], ['progression-ear', 5], ['roman-analysis', 4], ['error-spotting', 4], ['voice-next', 5], ['harmonize-melody', 4],
   ];
   for (const [id, levels] of drills) {
     for (let l = 0; l < levels; l++) {
