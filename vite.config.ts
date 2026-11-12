@@ -61,5 +61,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // CI runners are several times slower than a dev machine; harmony tests run the voicing search a lot
+    testTimeout: 30_000,
   },
 });

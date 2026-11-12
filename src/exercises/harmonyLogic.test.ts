@@ -21,14 +21,15 @@ import type { ExerciseLogic } from './types';
 const ALL = [cadenceEar, progressionEar, romanAnalysis, errorSpotting, voiceNext, harmonizeMelody] as ExerciseLogic<unknown>[];
 
 describe('harmony drill generators', () => {
-  it('generate at every level', () => {
-    for (const ex of ALL) {
+  // one test per drill: each runs the voicing search ~100×, too much for a single default-timeout test on CI
+  for (const ex of ALL) {
+    it(`${ex.id} generates at every level`, () => {
       for (let level = 0; level < ex.levels.length; level++) {
         const rng = createRng(100 + level);
         for (let i = 0; i < 25; i++) expect(() => ex.generate(level, rng), `${ex.id} L${level}`).not.toThrow();
       }
-    }
-  });
+    });
+  }
   it('are deterministic per seed', () => {
     for (const ex of ALL) expect(ex.generate(1, createRng(5))).toEqual(ex.generate(1, createRng(5)));
   });
