@@ -8,8 +8,6 @@ import { tokenize } from '../../engine/harmony/sequence';
 import { keySigFor } from '../../exercises/harmonyLogic';
 import { KEY_CODES, keyCodeLabel, keyFromCode, palettes } from './toolData';
 
-const PLAYHEAD = '#2f6fdf';
-
 function BridgeCard({ br, keySig, onUse, useLabel }: { br: RealizedBridge; keySig: string; onUse: () => void; useLabel: string }) {
   const [playing, setPlaying] = useState(-1);
   const r = br.realization;
@@ -26,7 +24,6 @@ function BridgeCard({ br, keySig, onUse, useLabel }: { br: RealizedBridge; keySi
   const colors: Record<string, string> = {};
   // inserted chords are tinted so the eye finds them
   for (let i = 1; i < br.symbols.length - 1; i++) for (let v = 0; v < 4; v++) colors[`${i}:${v}`] = '#7b4fb8';
-  if (playing >= 0) for (let v = 0; v < 4; v++) colors[`${playing}:${v}`] = PLAYHEAD;
   return (
     <article className={`card bridge fam-${br.family}`}>
       <header>
@@ -40,7 +37,7 @@ function BridgeCard({ br, keySig, onUse, useLabel }: { br: RealizedBridge; keySi
           </span>
         ))}
       </div>
-      <SatbStaff chords={r.names} labels={br.symbols.map(prettyRoman)} keySig={keySig} colors={colors} maxWidth={420} />
+      <SatbStaff chords={r.names} labels={br.symbols.map(prettyRoman)} keySig={keySig} colors={colors} playhead={playing} maxWidth={420} />
       <p>{br.explain}</p>
       <div className="row">
         <button type="button" className="play-btn" onClick={() => void play()}>

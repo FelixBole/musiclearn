@@ -4,6 +4,7 @@
  * from Settings, and recovery actions.
  */
 import { db, DB_NAME } from './progress/db';
+import { audioDiagnostics } from './engine/audio';
 
 const LOG_KEY = 'musiclearn:errors';
 
@@ -74,6 +75,11 @@ export function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise
 export async function collectDiagnostics(): Promise<string> {
   const lines: string[] = [];
   const add = (k: string, v: unknown) => lines.push(`${k}: ${typeof v === 'string' ? v : JSON.stringify(v)}`);
+  try {
+    add('audio', audioDiagnostics());
+  } catch (e) {
+    add('audio', `error: ${(e as Error).message}`);
+  }
   const probe = async (k: string, f: () => Promise<unknown>) => {
     try {
       add(k, await withTimeout(f(), 3000, k));

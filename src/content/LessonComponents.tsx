@@ -159,8 +159,6 @@ function useKey(tonic: string, minor?: boolean): KeyCtx {
   return { tonic, minor: !!minor };
 }
 
-const PLAYHEAD = '#2f6fdf';
-
 /**
  * <Progression romans="I IV V7 I" tonic="C" /> — auto-voiced in four parts (SATB),
  * notation with Roman numerals + playback (full, bass line, soprano).
@@ -190,8 +188,6 @@ export function Progression({
   const [sound, setSound] = useLessonSound();
   if (!res.realization) return <p className="error">⚠ {res.error}</p>;
   const voicings = res.realization.voicings;
-  const highlight: Record<string, string> = {};
-  if (playing >= 0) for (let v = 0; v < 4; v++) highlight[`${playing}:${v}`] = PLAYHEAD;
   const play = async () => {
     await playVoicings(
       voicings.map((v) => [...v]),
@@ -204,7 +200,7 @@ export function Progression({
   const k = minor ? tonic.toLowerCase() : tonic;
   return (
     <figure className="example">
-      <SatbStaff chords={res.realization.names} labels={res.parsed.items.map((i) => i.label)} keySig={keySig ?? keySigFor(key)} colors={highlight} />
+      <SatbStaff chords={res.realization.names} labels={res.parsed.items.map((i) => i.label)} keySig={keySig ?? keySigFor(key)} playhead={playing} />
       <figcaption>
         <button type="button" className="play-btn" onClick={() => void play()}>
           ▶ {label ?? 'Listen'}

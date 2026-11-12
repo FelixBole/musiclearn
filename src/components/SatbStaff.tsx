@@ -13,14 +13,17 @@ export interface SatbStaffProps {
   /** colors: key `${chordIndex}:${voiceIndex}` (voice 0 = bass … 3 = soprano) */
   colors?: Record<string, string>;
   maxWidth?: number;
+  /** index of the chord being played (-1 / undefined = none). Moves a bar, no re-render. */
+  playhead?: number;
 }
 
 /**
  * Four-part chorale notation: soprano (stems up) + alto (down) on the treble staff,
  * tenor (up) + bass (down) on the bass staff, labels under the bass.
  */
-export function SatbStaff({ chords, labels, keySig, colors = {}, maxWidth = 520 }: SatbStaffProps) {
+export function SatbStaff({ chords, labels, keySig, colors = {}, maxWidth = 520, playhead = -1 }: SatbStaffProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const xs = useRef<number[]>([]);
   const [ready, setReady] = useState(false);
   useEffect(() => {
     let alive = true;
@@ -35,12 +38,23 @@ export function SatbStaff({ chords, labels, keySig, colors = {}, maxWidth = 520 
     if (!el || !ready) return;
     el.innerHTML = '';
     try {
-      render(el, chords, labels, keySig, colors);
+      xs.current = render(el, chords, labels, keySig, colors);
     } catch (e) {
       el.textContent = `⚠ notation error: ${(e as Error).message}`;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig, ready]);
+  // the playhead only moves an existing <rect>: playing never rebuilds the notation
+  useEffect(() => {
+    const rect = ref.current?.querySelector<SVGRectElement>('rect.satb-playhead');
+    if (!rect) return;
+    const x = xs.current[playhead];
+    if (playhead < 0 || x === undefined) rect.setAttribute('visibility', 'hidden');
+    else {
+      rect.setAttribute('x', String(x - 15));
+      rect.setAttribute('visibility', 'visible');
+    }
+  }, [playhead, sig, ready]);
   return <div className="staff-paper" style={{ maxWidth }} ref={ref} role="img" aria-label="Four-part chorale" />;
 }
 
@@ -50,7 +64,7 @@ function render(
   labels: (string | undefined)[] | undefined,
   keySig: string | undefined,
   colors: Record<string, string>,
-) {
+): number[] {
   const n = Math.max(1, chords.length);
   const keyW = keySig ? 70 : 0;
   const width = Math.max(220, 90 + keyW + n * 62);
@@ -120,8 +134,19 @@ function render(
     ctx.restore();
   });
 
+  const xs = voices[0].getTickables().map((t) => t.getAbsoluteX() + 6);
   const svg = el.querySelector('svg');
   if (svg) {
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('class', 'satb-playhead');
+    rect.setAttribute('y', '12');
+    rect.setAttribute('width', '30');
+    rect.setAttribute('height', String(height - 52));
+    rect.setAttribute('stroke', 'none');
+    rect.setAttribute('rx', '8');
+    rect.setAttribute('fill', 'rgba(47, 111, 223, 0.18)');
+    rect.setAttribute('visibility', 'hidden');
+    svg.insertBefore(rect, svg.firstChild);
     svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
     svg.removeAttribute('width');
     svg.removeAttribute('height');
@@ -129,4 +154,5 @@ function render(
     svg.style.height = 'auto';
     svg.style.maxWidth = `${width * 1.5}px`;
   }
+  return xs;
 }

@@ -25,9 +25,39 @@ SAMPLE_NOTES['C8'] = 'C8.mp3';
 let sampler: Tone.Sampler | null = null;
 let ready: Promise<void> | null = null;
 let output: Tone.Volume | null = null;
+/** one convolution reverb for everything (fed by per-instrument sends): convolution is the costly part */
+let reverb: Tone.Reverb | null = null;
+let pianoSend: Tone.Gain | null = null;
+let orchestraSend: Tone.Gain | null = null;
 
 function baseUrl(): string {
   return `${import.meta.env.BASE_URL}samples/piano/`;
+}
+
+/* ---------------- audio buffer size (latency vs glitch-free playback) ---------------- */
+
+export type LatencyMode = 'interactive' | 'balanced' | 'playback';
+const LATENCY_KEY = 'audio:latency';
+
+export function getLatencyMode(): LatencyMode {
+  try {
+    const v = localStorage.getItem(LATENCY_KEY);
+    if (v === 'interactive' || v === 'balanced' || v === 'playback') return v;
+  } catch {
+    /* ignore */
+  }
+  // phones/tablets: largest buffer (no live keyboard to worry about); desktop: a middle ground for MIDI echo
+  const touch = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
+  return touch ? 'playback' : 'balanced';
+}
+
+/** Takes effect on the next app start (the audio context is created once). */
+export function setLatencyMode(m: LatencyMode) {
+  try {
+    localStorage.setItem(LATENCY_KEY, m);
+  } catch {
+    /* ignore */
+  }
 }
 
 /** Must be called from a user gesture at least once (browser autoplay policy). */
@@ -38,19 +68,71 @@ export function ensureAudio(): Promise<void> {
     return ready;
   }
   ready = (async () => {
+    // A larger buffer gives the audio thread headroom: small ones underrun (pops) on phones.
+    Tone.setContext(new Tone.Context({ latencyHint: getLatencyMode() }));
     await Tone.start();
-    output = new Tone.Volume(-4).toDestination();
-    const reverb = new Tone.Reverb({ decay: 2.4, wet: 0.18 });
+    const limiter = new Tone.Limiter(-1).toDestination(); // the volume setting goes up to +6 dB: never clip
+    output = new Tone.Volume(-4).connect(limiter);
+    if (import.meta.env.DEV) installPeakProbe(output);
+    reverb = new Tone.Reverb({ decay: 2.8, wet: 1 });
     await reverb.generate();
     reverb.connect(output);
+    pianoSend = new Tone.Gain(0.2).connect(reverb);
+    orchestraSend = new Tone.Gain(0.38).connect(reverb);
     sampler = new Tone.Sampler({
       urls: SAMPLE_NOTES,
       baseUrl: baseUrl(),
+      attack: 0.003,
       release: 1.2,
-    }).connect(reverb);
+    });
+    sampler.connect(output);
+    sampler.connect(pianoSend);
     await Tone.loaded();
   })();
   return ready;
+}
+
+/** Audio engine facts for the diagnostics report. */
+export function audioDiagnostics(): Record<string, unknown> {
+  if (!ready) return { started: false, latencyMode: getLatencyMode() };
+  const raw = Tone.getContext().rawContext as AudioContext & { playbackStats?: Record<string, number> };
+  const stats = raw.playbackStats;
+  return {
+    state: raw.state,
+    latencyMode: getLatencyMode(),
+    sampleRate: raw.sampleRate,
+    baseLatencyMs: raw.baseLatency !== undefined ? Math.round(raw.baseLatency * 1000) : 'n/a',
+    outputLatencyMs: raw.outputLatency !== undefined ? Math.round(raw.outputLatency * 1000) : 'n/a',
+    ...(stats ? { underrunEvents: stats.underrunEvents, underrunMs: stats.underrunDuration !== undefined ? Math.round(stats.underrunDuration * 1000) : undefined } : {}),
+    orchestraLoaded: [...orchestra.keys()].join(' ') || 'none',
+  };
+}
+
+let lateNotes = 0;
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as unknown as { __audioLate: () => number }).__audioLate = () => {
+    const n = lateNotes;
+    lateNotes = 0;
+    return n;
+  };
+}
+
+/** Dev-only: window.__audioPeak() returns (and resets) the highest output sample since the last call. */
+function installPeakProbe(node: Tone.ToneAudioNode) {
+  const an = Tone.getContext().rawContext.createAnalyser();
+  an.fftSize = 2048;
+  Tone.connect(node, an);
+  const buf = new Float32Array(an.fftSize);
+  let peak = 0;
+  setInterval(() => {
+    an.getFloatTimeDomainData(buf);
+    for (const v of buf) peak = Math.max(peak, Math.abs(v));
+  }, 20);
+  (window as unknown as { __audioPeak: () => number }).__audioPeak = () => {
+    const p = peak;
+    peak = 0;
+    return p;
+  };
 }
 
 export function isAudioReady(): boolean {
@@ -79,7 +161,6 @@ export interface PlayEvent {
 /* ---------------- orchestral sections ---------------- */
 
 const orchestra = new Map<SampleId, Promise<Tone.Sampler>>();
-let hall: Tone.Reverb | null = null;
 const RELEASE: Partial<Record<SampleId, number>> = { violins: 0.7, violas: 0.7, cellos: 0.7, basses: 0.7, horn: 0.5, trumpet: 0.35, trombone: 0.45, tuba: 0.45 };
 /** usable seconds per orchestral sample (they are trimmed to 3.4–4.2 s with a fade) */
 const SAMPLE_SUSTAIN = 2.6;
@@ -95,11 +176,6 @@ export function loadInstrument(id: SampleId): Promise<Tone.Sampler> {
   if (!p) {
     p = (async () => {
       await ensureAudio();
-      if (!hall) {
-        hall = new Tone.Reverb({ decay: 3.2, wet: 0.28 });
-        await hall.generate();
-        hall.connect(output!);
-      }
       const urls = ORCHESTRA_SAMPLES[id];
       if (!urls) throw new Error(`No samples for ${id}`);
       return await new Promise<Tone.Sampler>((resolve, reject) => {
@@ -110,7 +186,9 @@ export function loadInstrument(id: SampleId): Promise<Tone.Sampler> {
           release: RELEASE[id] ?? 0.3,
           onload: () => resolve(smp),
           onerror: (e) => reject(e),
-        }).connect(hall!);
+        });
+        smp.connect(output!);
+        smp.connect(orchestraSend!);
         smp.volume.value = -6;
       });
     })();
@@ -175,7 +253,9 @@ export async function playEvents(events: PlayEvent[], opts: PlayOptions = {}): P
         setTimeout(
           () => {
             if (gen !== generation) return;
-            smp.triggerAttackRelease(midis.map(freq), len, start + at + off, off ? vel * 0.85 : vel);
+            if (import.meta.env.DEV && Tone.now() > start + at + off) lateNotes++;
+            const when = Math.max(start + at + off, Tone.now() + 0.01);
+            smp.triggerAttackRelease(midis.map(freq), len, when, off ? vel * 0.85 : vel);
           },
           Math.max(0, (at + off) * 1000 - 150),
         ),

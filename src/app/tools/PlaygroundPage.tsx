@@ -22,7 +22,6 @@ interface Saved {
 
 const LAST = 'playground:last';
 const SAVED = 'playground:saved';
-const PLAYHEAD = '#2f6fdf';
 const ERR = '#c0393f';
 const WARN = '#c47f12';
 
@@ -168,7 +167,6 @@ export function PlaygroundPage() {
       for (const ci of pair ? [i.at - 1, i.at] : [i.at]) for (const v of i.voices) if (colors[`${ci}:${v}`] !== ERR) colors[`${ci}:${v}`] = i.severity === 'error' ? ERR : WARN;
     }
   }
-  if (playing >= 0) for (let v = 0; v < 4; v++) colors[`${playing}:${v}`] = PLAYHEAD;
 
   // pairs of adjacent Roman-numeral chords that the explorer can connect
   const items = res.parsed.items;
@@ -281,7 +279,7 @@ export function PlaygroundPage() {
       <section className="card">
         <div className="scroll-x">
           <div style={{ minWidth: Math.max(300, 120 + nChords * 52) }}>
-            {r ? <SatbStaff chords={r.names} labels={labels} keySig={keySigFor(key)} colors={colors} maxWidth={Math.max(520, 140 + nChords * 64)} /> : <div className="staff-placeholder muted">Type a progression above</div>}
+            {r ? <SatbStaff chords={r.names} labels={labels} keySig={keySigFor(key)} colors={colors} playhead={playing} maxWidth={Math.max(520, 140 + nChords * 64)} /> : <div className="staff-placeholder muted">Type a progression above</div>}
           </div>
         </div>
         <div className="row center">

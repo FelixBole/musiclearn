@@ -3,7 +3,7 @@ import { updateSettings, useSettings } from '../../progress/settings';
 import { exportBackup, importBackup } from '../../progress/db';
 import { RepairTools } from '../Resilience';
 import { useMidiStatus } from '../hooks';
-import { ensureAudio, orchestraFileUrls, playMelody } from '../../engine/audio';
+import { ensureAudio, getLatencyMode, orchestraFileUrls, playMelody, setLatencyMode, type LatencyMode } from '../../engine/audio';
 
 export function SettingsPage() {
   const s = useSettings();
@@ -102,6 +102,7 @@ export function SettingsPage() {
             onPointerUp={() => void ensureAudio().then(() => playMelody([60, 64, 67], 0.25))}
           />
         </label>
+        <AudioBuffer />
       </section>
 
       <OfflineSounds />
@@ -180,5 +181,35 @@ function OfflineSounds() {
       </div>
       {finished && state.failed > 0 && <p className="small">⚠ {state.failed} files failed. Check your connection and try again.</p>}
     </section>
+  );
+}
+
+/** Audio buffer size: low latency for live MIDI playing vs. glitch-free playback. */
+function AudioBuffer() {
+  const [mode, setMode] = useState<LatencyMode>(getLatencyMode);
+  const [changed, setChanged] = useState(false);
+  return (
+    <label className="field">
+      <span>Audio buffer</span>
+      <select
+        value={mode}
+        onChange={(e) => {
+          const m = e.target.value as LatencyMode;
+          setMode(m);
+          setLatencyMode(m);
+          setChanged(true);
+        }}
+      >
+        <option value="interactive">Low latency (best for live MIDI playing)</option>
+        <option value="balanced">Balanced</option>
+        <option value="playback">Smooth (fewest pops and crackles)</option>
+      </select>
+      <small className="muted">If playback pops or crackles, choose Smooth. Low latency makes your MIDI keyboard respond faster but needs a fast device.</small>
+      {changed && (
+        <button type="button" className="btn ghost small" onClick={() => location.reload()}>
+          Reload to apply
+        </button>
+      )}
+    </label>
   );
 }
