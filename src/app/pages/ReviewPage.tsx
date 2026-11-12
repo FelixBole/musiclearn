@@ -6,6 +6,7 @@ import { dueCards, previewIntervals, Rating, reviewCard, type Grade } from '../.
 import { Staff } from '../../components/Staff';
 import { Play, playByMode } from '../../components/Play';
 import { ensureAudio } from '../../engine/audio';
+import { Loading } from '../Resilience';
 
 const GRADES: { g: Grade; label: string; cls: string }[] = [
   { g: Rating.Again as Grade, label: 'Again', cls: 'again' },
@@ -80,7 +81,7 @@ export function ReviewPage() {
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  if (!queue) return <div className="loading">Loading…</div>;
+  if (!queue) return <Loading />;
 
   if (!current || !content) {
     return (

@@ -13,6 +13,7 @@ import { DrillPage } from './pages/DrillPage';
 import { ReviewPage } from './pages/ReviewPage';
 import { ToolsPage } from './pages/ToolsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { DbGate, ErrorBoundary } from './Resilience';
 
 /** Keeps engine state (MIDI, echo, volume) in sync with persisted settings. */
 function EngineBridge() {
@@ -35,6 +36,18 @@ const NAV = [
 ];
 
 export function App() {
+  // Error boundary + DB gate wrap everything that touches the database, so a broken
+  // or blocked IndexedDB shows a recovery screen instead of spinning forever.
+  return (
+    <ErrorBoundary>
+      <DbGate>
+        <Shell />
+      </DbGate>
+    </ErrorBoundary>
+  );
+}
+
+function Shell() {
   const days = useLiveQuery(() => db.days.toArray(), []);
   const streak = days ? computeStreak(days) : 0;
   return (

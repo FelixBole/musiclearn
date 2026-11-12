@@ -67,7 +67,34 @@ export class MusicLearnDB extends Dexie {
   }
 }
 
-export const db = new MusicLearnDB();
+export const DB_NAME = 'musiclearn';
+export const db = new MusicLearnDB(DB_NAME);
+
+/* Connection health, observable by the UI (see DbGate). */
+type DbIssue = null | { kind: 'blocked' | 'versionchange'; at: number };
+let dbIssue: DbIssue = null;
+const issueListeners = new Set<(i: DbIssue) => void>();
+export function onDbIssue(l: (i: DbIssue) => void) {
+  issueListeners.add(l);
+  return () => {
+    issueListeners.delete(l);
+  };
+}
+export function getDbIssue() {
+  return dbIssue;
+}
+function setDbIssue(i: DbIssue) {
+  dbIssue = i;
+  issueListeners.forEach((l) => l(i));
+}
+// Another window of the app is holding an old connection open (e.g. a frozen background tab).
+db.on('blocked', () => setDbIssue({ kind: 'blocked', at: Date.now() }));
+// Another window wants to delete/upgrade the DB: let go of our connection so it isn't blocked.
+db.on('versionchange', () => {
+  db.close();
+  setDbIssue({ kind: 'versionchange', at: Date.now() });
+  return false;
+});
 
 export function todayKey(d = new Date()): string {
   const y = d.getFullYear();
@@ -151,6 +178,7 @@ export async function importBackup(json: string, database: MusicLearnDB = db) {
   });
 }
 
+/** Test helper: wipe and reopen a database instance. The UI uses diagnostics.deleteDatabase. */
 export async function resetAll(database: MusicLearnDB = db) {
   await database.delete();
   await database.open();

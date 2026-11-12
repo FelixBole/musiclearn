@@ -258,6 +258,10 @@ select { background: var(--bg-2); color: var(--fg); border: 1px solid var(--line
 .grade.good { border-color: var(--ok); }
 .grade.easy { border-color: var(--info); }
 
+/* ---------- diagnostics ---------- */
+.diag { white-space: pre-wrap; word-break: break-word; font-size: 0.72rem; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; max-height: 50vh; overflow: auto; }
+.recovery code { word-break: break-word; }
+
 /* ---------- tools ---------- */
 .chord-readout { display: flex; flex-direction: column; gap: 10px; align-items: stretch; margin: 10px 0; }
 /* fixed height so a chord name vs. placeholder text never shifts the layout */

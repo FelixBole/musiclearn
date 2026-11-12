@@ -9,6 +9,8 @@ import { getSkill, recordAnswer, setSkillLevel } from '../../progress/skills';
 import { updateDay } from '../../progress/db';
 import { useSettings } from '../../progress/settings';
 import { useMidiStatus } from '../hooks';
+import { Loading } from '../Resilience';
+import { logError } from '../../diagnostics';
 
 export function DrillPage() {
   const { exerciseId = '' } = useParams();
@@ -40,12 +42,17 @@ function DrillRunner({ ex }: { ex: ExerciseDef }) {
   const levelRef = useRef(0);
 
   useEffect(() => {
-    void getSkill(ex.id).then((s) => {
-      const override = search.get('level');
-      const lvl = override !== null ? Math.min(Number(override), ex.levels.length - 1) : s.level;
-      setSkillLevelState(s.level);
-      setLevel(lvl);
-    });
+    void getSkill(ex.id)
+      .catch((e) => {
+        logError('get-skill', e);
+        return { level: 0 } as { level: number };
+      })
+      .then((s) => {
+        const override = search.get('level');
+        const lvl = override !== null ? Math.min(Number(override), ex.levels.length - 1) : s.level;
+        setSkillLevelState(s.level);
+        setLevel(lvl);
+      });
   }, [ex, search]);
 
   useEffect(() => () => stopAll(), []);
@@ -117,7 +124,7 @@ function DrillRunner({ ex }: { ex: ExerciseDef }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [phase, answered, next]);
 
-  if (level === null) return <div className="loading">Loading…</div>;
+  if (level === null) return <Loading />;
 
   if (phase === 'intro') {
     return (

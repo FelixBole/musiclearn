@@ -6,6 +6,7 @@ import { EXERCISES } from '../../exercises/registry';
 import { mastery } from '../../progress/skills';
 import type { SkillRecord } from '../../progress/db';
 import { useSettings } from '../../progress/settings';
+import { Loading } from '../Resilience';
 
 const WARMUP = ['note-reading', 'interval-ear'];
 
@@ -35,7 +36,7 @@ export function TodayPage() {
     return { lessons, dueCount, skills, today };
   }, []);
 
-  if (!data) return <div className="loading">Loading…</div>;
+  if (!data) return <Loading />;
   const completed = new Set(data.lessons.map((l) => l.id));
   const next = nextLesson(completed);
   const lessonsToday = data.today?.lessons.length ?? 0;

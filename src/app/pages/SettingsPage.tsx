@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { updateSettings, useSettings } from '../../progress/settings';
-import { exportBackup, importBackup, resetAll } from '../../progress/db';
+import { exportBackup, importBackup } from '../../progress/db';
+import { RepairTools } from '../Resilience';
 import { useMidiStatus } from '../hooks';
 import { ensureAudio, playMelody } from '../../engine/audio';
 
@@ -120,18 +121,12 @@ export function SettingsPage() {
             hidden
             onChange={(e) => e.target.files?.[0] && void restore(e.target.files[0])}
           />
-          <button
-            type="button"
-            className="btn danger"
-            onClick={() => {
-              if (confirm('Erase all progress, cards and settings on this device?')) void resetAll().then(() => setMsg('Progress reset.'));
-            }}
-          >
-            Reset progress
-          </button>
         </div>
         {msg && <p className="small">{msg}</p>}
+        <p className="muted small">To start over, use “Delete local database” below.</p>
       </section>
+
+      <RepairTools />
 
       <section className="card muted-card">
         <h2>About</h2>
